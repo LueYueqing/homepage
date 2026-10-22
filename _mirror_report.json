@@ -1,0 +1,126 @@
+{
+  "stats": {
+    "page": 12,
+    "res": 51,
+    "skip_ext": 59,
+    "fail": 29
+  },
+  "fail": [
+    [
+      "https://www.jianfast.com/images/360anquan.png",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/360jisu.png",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/sougou.png",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/firefox.png",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/qq.png",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/chrome.svg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/safari.svg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/edge.svg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/chrome2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/chrome3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/edge2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/ie.png",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/uc.svg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/edge3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/other.svg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/360anquan2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/360anquan3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/360jisu2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/qq2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/sougou3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/firefox2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/sougou2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/qq3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/firefox3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/uc2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/uc3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/ie2.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/images/ie3.jpg",
+      "HTTP Error 404: Not Found"
+    ],
+    [
+      "https://www.jianfast.com/browser.js",
+      "HTTP Error 404: Not Found"
+    ]
+  ]
+}

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<title>设置主页-简法主页</title>
+    <meta name="keywords" content="设置主页简法主页,把简法设置为浏览器主页,浏览器主页设置方法," />
+    <meta name="description" content="简法主页是一个极简风格的主页网站，简洁清新，轻快大方，在简法你可以自定义喜欢的背景，以及自由切换偏好的搜索引擎，获取更舒适便捷的上网体验！" />
+
+	<style>
+		#browser-btn-box{
+			margin:50px 0 50px 0;
+			display:flex;
+			align-items:center;
+			flex-wrap:wrap;
+		}
+		.browser-btn{
+			text-align:center;
+			font-size:12px;
+			
+			display:flex;
+			flex-flow:column nowrap;
+			justify-content:center;
+			align-items:center;
+			user-select:none;
+			cursor: pointer;
+			margin-right:10px;
+			
+		}
+		.browser-btn:hover .browser-img{
+			transform:scale(1.2);
+			-webkit-filter: grayscale(0%); 
+		}
+
+		.browser-btn:hover .browser-name{
+			color:#4489f6;
+		}
+
+		.browser-img{
+			/* -webkit-filter: grayscale(100%);  */
+			height:37px;
+			width:37px;
+			margin-bottom:8px;
+			transition:all .3s;
+		}
+
+		.current-browser-img{
+			transform:scale(1.2);
+		}
+
+		.browser-name{
+			width:80px;
+			white-space:nowrap;	
+			margin-bottom:20px;		
+		}
+
+		.current-browser-name{
+			color:#4489f6;
+		}
+
+		.copy-btn{
+			display:inline-block;
+			padding:4px 10px;
+			font-size:12px;
+			border-radius:100px;
+			user-select:none;
+			cursor: pointer;
+			background-color:white;
+		}
+
+		.zhuye-img{
+			border-radius:6px;
+			border:1px solid #d9d9d9;
+		}
+
+		.browser-set-text{
+			display:none;
+		}
+
+
+	</style>
+
+
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no,maximum-scale=1.0,minimum-scale=1.0">
+
+	<link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="../common/base.a83ad4.css">
+	<script>
+		var _hmt = _hmt || [];
+		var hmUsearc="dec4023a51";//
+		(function() {
+		  var hm = document.createElement("script");
+		  hm.src = "https://hm.baidu.com/hm.js?7cfb32da5a4a5240b600dddec4023a51";
+		  var s = document.getElementsByTagName("script")[0]; 
+		  s.parentNode.insertBefore(hm, s);
+		})();
+	</script>
+</head>
+<body>
+	<div id="headDiv">
+		<div id="headWidthDiv">
+			<a id="headLogo" href="../index.html" target="_blank"><img src="../static/home/images/logo_text.svg"></a>
+			<ul>
+				
+				<a href="../index.html" target="_blank">首页</a>
+				<a href="../about/index.html" target="_blank">关于我们</a>
+				<a href="../contact/index.html" target="_blank">联系</a>
+				<a href="../zhinan/index.html" target="_blank">使用指南</a>
+				
+			</ul>
+		</div>
+	</div>
+
+
+
+
+	<div id="grayDiv">
+		<div id="widthDiv">
+			<div class="textMain">
+				<div class="textDiv">
+					<span class="fontTitle1" id='zn'>把简法设为浏览器主页</span><br><br>
+					<span class="font2">设置为浏览器主页后，每次启动浏览器时自动打开简法主页<br><br><br><br>
+					设置过程约30秒，各浏览器设置主页方法：
+
+					<div id='browser-btn-box'>
+						<div class='browser-btn' data-browser='chrome'>
+							<img class='browser-img' src='images/chrome.svg'>
+							<span class='browser-name'>Chrome浏览器</span>
+						</div>
+						<div class='browser-btn' data-browser='edge'>
+							<img class='browser-img' src='images/edge.svg'>
+							<span class='browser-name'>Edge浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='360se'>
+							<img class='browser-img' src='images/360anquan.png'>
+							<span class='browser-name'>360安全浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='360ee'>
+							<img class='browser-img' src='images/360jisu.png'>
+							<span class='browser-name'>360极速浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='sogou'>
+							<img class='browser-img' src='images/sougou.png'>
+							<span class='browser-name'>搜狗高速浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='qqbrowser'>
+							<img class='browser-img' src='images/qq.png'>
+							<span class='browser-name'>QQ浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='firefox'>
+							<img class='browser-img' src='images/firefox.png'>
+							<span class='browser-name'>Firefox浏览器</span>
+						</div>
+						<div class='browser-btn00' style="display:none">
+							<img class='browser-img00' src='images/safari.svg'>
+							<span class='browser-name00'>Safari浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='uc'>
+							<img class='browser-img' src='images/uc.svg'>
+							<span class='browser-name'>UC浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='ie'>
+							<img class='browser-img' src='images/ie.png'>
+							<span class='browser-name'>IE浏览器</span>
+						</div>
+						<div class='browser-btn'  data-browser='other'>
+							<img class='browser-img' src='images/other.svg'>
+							<span class='browser-name'>其他浏览器</span>
+						</div>
+					</div>
+
+					<div id='browser-set-text-box'>
+						<!-- chrome -->
+						<div class='browser-set-text' class="font2"  data-browser='chrome'>
+							<span class='fontTitle3'>1. 点击Chrome浏览器右上角“设置”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 chrome://settings/onStartup <div class='copy-btn' data-copy='chrome://settings/onStartup'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在左侧“启动时”设置菜单下选择“打开特定网页或一组网页”，再选择“添加新网页”</span><br><br>
+							<img class='zhuye-img' src='images/chrome2.jpg' width='700px'>
+							
+							<br><br><br>
+							<span class='fontTitle3'>3. 在“添加新网页”输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/chrome3.jpg' width='550px'>
+						</div>
+
+						<!-- edge -->
+						<div class='browser-set-text' class="font2" data-browser='edge'>
+							<span class='fontTitle3'>1. 点击Edge浏览器右上角“设置”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 edge://settings/startHomeNTP <div class='copy-btn' data-copy='edge://settings/startHomeNTP'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在左侧“开始、主页和新建标签页”设置菜单下选择“打开以下页面”，再选择“添加新页面”</span><br><br>
+							<img class='zhuye-img' src='images/edge2.jpg' width='700px'>
+							
+							<br><br><br>
+							<span class='fontTitle3'>3. 在“添加新页面”输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/edge3.jpg' width='500px'>
+						</div>
+
+						<!-- 360安全浏览器 -->
+						<div class='browser-set-text' class="font2" data-browser='360se'>
+							<span class='fontTitle3'>1. 点击360安全浏览器右上角“设置”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 se://settings/browser <div class='copy-btn' data-copy='se://settings/browser'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在左侧“基本设置”设置菜单下的“启动时打开”设置项选择打开“主页”，然后点击下方“修改主页”按钮</span><br><br>
+							<img class='zhuye-img' src='images/360anquan2.jpg' width='700px'>
+							<br><br><br>
+							<span class='fontTitle3'>3. 在“主页设置”输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/360anquan3.jpg' width='500px'>
+						</div>
+
+						<!-- 360极速浏览器 -->
+						<div class='browser-set-text' class="font2" data-browser='360ee'>
+							<span class='fontTitle3'>1. 点击360极速浏览器右上角“选项”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 chrome://settings/browser#kc <div class='copy-btn' data-copy='chrome://settings/browser#kc'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在左侧“基本设置”设置菜单下的“启动时”设置项，选择“打开主页”并输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/360jisu2.jpg' width='700px'>
+						</div>
+
+						<!-- 搜狗高速浏览器 -->
+						<div class='browser-set-text' class="font2" data-browser='sogou'>
+							<span class='fontTitle3'>1. 点击搜狗高速浏览器右上角“选项”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 se://settings/?category=general <div class='copy-btn' data-copy='se://settings/?category=general'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在左侧“基本设置”设置菜单下的“启动时打开”设置项选择打开“主页”；“主页设置项”设置项选择“自定义”，然后点击后面的“设置网址”按钮</span><br><br>
+							<img class='zhuye-img' src='images/sougou2.jpg' width='620px'>
+							<br><br><br>
+							<span class='fontTitle3'>3. 在“自定义主页”输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div>，并删除第一行自带主页</span><br><br>
+							<img class='zhuye-img' src='images/sougou3.jpg' width='620px'>
+						</div>
+
+						<!-- QQ浏览器 -->
+						<div class='browser-set-text' class="font2" data-browser='qqbrowser'>
+							<span class='fontTitle3'>1. 点击QQ浏览器右上角“设置”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 qqbrowser://settings/ <div class='copy-btn' data-copy='qqbrowser://settings/'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在“常规设置”设置菜单下的“启动时打开”设置项，选择“主页”并点击后面的“设置”按钮</span><br><br>
+							<img class='zhuye-img' src='images/qq2.jpg' width='620px'>
+							<br><br><br>
+							<span class='fontTitle3'>3. 在“主页”设置面板选择“自定义网站”，输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/qq3.jpg' width='550px'>
+						</div>
+
+						<!-- fireFox -->
+						<div class='browser-set-text' class="font2" data-browser='firefox'>
+							<span class='fontTitle3'>1. 点击FireFox浏览器右上角“设置”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 about:preferences#home <div class='copy-btn' data-copy='about:preferences#home'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在左侧“主页”设置菜单“新窗口和标签页”下拉框中选择“自定义网址”</span><br><br>
+							<img class='zhuye-img' src='images/firefox2.jpg' width='700px'>
+							
+							<br><br><br>
+							<span class='fontTitle3'>3. 在“自定义网址”下输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/firefox3.jpg' width='700px'>
+						</div>
+
+						<!-- UC浏览器 -->
+						<div class='browser-set-text' class="font2" data-browser='uc'>
+							<span class='fontTitle3'>1. 点击UC浏览器右上角“设置”按钮</span><br><br>
+							或者在浏览器地址栏直接输入 ucbrowser://settings/general <div class='copy-btn' data-copy='ucbrowser://settings/general'>复制</div><br><br><br>
+							<span class='fontTitle3'>2. 在左侧“常规”设置菜单中“启动时打开”设置项下选择“打开主页”</span><br><br>
+							<img class='zhuye-img' src='images/uc2.jpg' width='700px'>
+							
+							<br><br><br>
+							<span class='fontTitle3'>3. 在下方“浏览器主页保护”下找到“使用此页”，输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/uc3.jpg' width='600px'>
+						</div>
+
+						<!-- IE浏览器 -->
+						<div class='browser-set-text' class="font2" data-browser='ie'>
+							<span class='fontTitle3'>1. 点击IE浏览器右上角“Internet选项”按钮</span><br><br><br>
+							<span class='fontTitle3'>2. 找到“常规”设置菜单下的“主页”设置项的输入框，输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							<img class='zhuye-img' src='images/ie2.jpg' width='500px'><br><br><br>
+							<span class='fontTitle3'>3. 下方的“启动”设置项选择“从主页开始”</span><br><br>
+							<img class='zhuye-img' src='images/ie3.jpg' width='500px'><br><br><br>
+							简法能够兼容IE 11，但现在微软已经推出兼容性更好的 <a style='color:#4d4d4d' href='https://www.microsoft.com/zh-cn/edge?r=1' target='_blank'>Edge浏览器</a>，部分网站现已放弃兼容IE浏览器，推荐你使用Edge以获得更佳访问体验。
+						</div>
+
+						<!-- 其他浏览器 -->
+						<div class='browser-set-text' class="font2"  data-browser='other'>
+							其他浏览器主页设置方法可参考前面例举的主流浏览器，一般设置流程为：<br><br>
+							<span class='fontTitle3'>1. 点击浏览器的“设置”按钮进入设置界面</span><br><br><br>
+							<span class='fontTitle3'>2. 设置打开浏览器时的启动页</span><br><br>
+							不同浏览器的启动页设置项名称可能不同，注意关键词“启动页”、“开始”、“主页”、“打开时”、“浏览器启动时”……
+							
+							<br><br><br>
+							<span class='fontTitle3'>3. 在启动页设置处输入简法主页的链接 https://www.jianfast.com/ <div class='copy-btn' data-copy='https://www.jianfast.com/'>复制</div></span><br><br>
+							
+						</div>
+
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<script type="text/javascript" src="../static/home/js/jquery-1.8.0.js"></script> 
+	<script type="text/javascript" src="browser.js"></script> 
+	<script>
+		var browserInfo = new Browser();
+		var browser=browserInfo.browser.toLowerCase();
+		console.log(browserInfo);
+		
+
+		var oBrowserBtn=document.getElementsByClassName('browser-btn');
+		var oBrowserSetText=document.getElementsByClassName('browser-set-text');
+		var oCopyBtn=document.getElementsByClassName('copy-btn');
+
+		for(var j=0;j<oBrowserSetText.length;j++){
+			if(browser.search(oBrowserBtn[j].dataset.browser)!=-1){
+				oBrowserBtn[j].style.order=-1;
+				$('.browser-img')[j].className='browser-img current-browser-img';
+				$('.browser-name')[j].className='browser-name current-browser-name';
+				oBrowserSetText[j].style.display='block';
+			}
+		}
+		
+		for(var i=0;i<oBrowserBtn.length;i++){
+			oBrowserBtn[i].index=i;
+			oBrowserBtn[i].onclick=function(){
+				$('.browser-img').removeClass('current-browser-img');
+				$('.browser-img')[this.index].className='browser-img current-browser-img';
+				$('.browser-name').removeClass('current-browser-name');
+				$('.browser-name')[this.index].className='browser-name current-browser-name';
+
+
+				$('.browser-set-text').hide();
+				//oBrowserSetText[this.index].style.display='block';
+				for(var j=0;j<oBrowserSetText.length;j++){
+					if(oBrowserSetText[j].dataset.browser==this.dataset.browser){
+						oBrowserSetText[j].style.display='block';
+					}
+				}
+			}
+		}
+
+		for(var i=0;i<oCopyBtn.length;i++){			
+			oCopyBtn[i].index=i;
+			oCopyBtn[i].onclick=function(){
+				$('.copy-btn').html('复制');
+				var copyData=this.dataset.copy;
+				let transfer = document.createElement('input');
+				document.body.appendChild(transfer);
+				transfer.value = copyData;  // 这里表示想要复制的内容
+				transfer.select();
+				if (document.execCommand('copy')) {
+					document.execCommand('copy');
+				}
+				document.body.removeChild(transfer);
+
+				this.innerHTML='复制成功';
+			}
+		}
+	</script>
+
+
+
+		<div id="bottomDiv" style="margin:0;padding:0">
+			<div id="botWidthDiv">
+					<div id="botLink">
+						<a href="../index.html" target="_blank">简法首页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="../about/index.html" target="_blank">关于我们</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="../contact/index.html" target="_blank">联系</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="../zhinan/index.html" target="_blank">使用指南</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="index.html" target="_blank">设为主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="../zhinan/index.html" target="_blank">常见问题解答</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="../contract/index.html" target="_blank">服务条款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+					</div>
+					<!-- <div id="botText"></div> -->
+					<div id='bottom-text-box'>
+						<div id="botCopyright">©2026 Jianfast.com&nbsp;&nbsp;<a id='bottom-beian' href='http://beian.miit.gov.cn/' target="_blank">粤ICP备17112242</a>&nbsp;&nbsp;深圳市简汲科技</div>
+						<div id="youqinglianjie">
+							友情链接：
+							<a href="http://www.myzaker.com/" target="_blank">Zaker</a>&nbsp;&nbsp;
+							<a href="https://bz.zzzmh.cn/index" target="_blank">极简壁纸</a>&nbsp;&nbsp;	
+							<a href="https://www.bidianer.com" target="_blank">笔点导航</a>&nbsp;&nbsp;
+							<a href="http://byr.wiki/" target="_blank">北邮人导航</a>&nbsp;&nbsp;
+							<a href="../contact/index.907548.html" target="_blank">友链申请</a>&nbsp;&nbsp;
+						</div>
+					</div>
+			</div>
+		</div>
+	
+</body>
+</html>

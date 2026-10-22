@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no,maximum-scale=1.0,minimum-scale=1.0">
+    <title>简法主页</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <meta name="keywords" content="简法,简法主页,简法导航,简法网址导航,简法主页-轻快极简的上网体验,简法首页,jianfast,减法主页,减法导航,jianfa主页,简法网址大全,简约导航网站,无广告,自定义壁纸主页网站,网址导航,网站导航,自定义网址导航" />
+    <meta name="description" content="简法主页是一个极简风格的主页网站，简洁清新，轻快大方，在简法你可以自定义喜欢的背景，以及自由切换偏好的搜索引擎，获取更舒适便捷的上网体验！" />    
+    
+
+    <link rel="stylesheet" href="static/home/css/index/base.9f99ea.css">
+    <link rel="stylesheet" href="static/home/css/index/console.f95946.css">
+    <!--<script type="text/javascript" src="static/home/js/jquery-1.8.0.js"></script>    -->
+    <script src="_ext/apps_bdimg_com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="static/home/js/jquery.cookie.min.js"></script>
+    <script type="text/javascript" src="static/home/js/jquery-ui.min.sortable.js"></script>
+    <script type="text/javascript" src="static/home/js/index/tool.js"></script>
+    <script type="text/javascript" src="zhuye/browser.js"></script>
+    
+
+    <script type="text/javascript" src="static/home/js/index/search.52bc13.js"></script>
+    <script type="text/javascript" src="static/home/js/index/keyword.bc4442.js"></script>    
+    <script type="text/javascript" src="static/home/js/index/console.d222c4.js"></script>  
+    <script type="text/javascript" src="static/home/js/index/site.46dbb4.js"></script>
+    <script type="text/javascript" src="static/home/js/index/base.46dbb4.js"></script>
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?7cfb32da5a4a5240b600dddec4023a51";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+</head>
+
+<body>
+<!-- menu-wrap *********************-->
+    <div id="menu-wrap">
+        <div id="menu-main">
+            <div class="menu-item console-siteset-btn">编辑图标链接</div>
+            <div class="menu-item console-engineset-btn">编辑搜索引擎</div>
+            <div class="menu-item console-uiset-btn">设置页面布局</div>
+            <div class="menu-item console-downloadcurrent-btn">下载当前壁纸</div>
+            <div class="menu-item console-randbg-btn">随机壁纸</div>
+            <div class="menu-item console-bgset-btn">设置壁纸</div>
+        </div>
+    </div>
+<!-- msg-wrap *********************-->
+    <div id="msg-wrap">
+        <div id="msg-box">
+        </div>
+    </div>
+<!-- bg-wrap *********************-->
+    <div id="bg-wrap">
+        <!-- <iframe id="bg" src=''></iframe> -->
+    </div>
+    <div id="blackBg"></div>
+    <!-- <div id="menu-bg">    </div> -->
+
+<!-- main-wrap *********************-->
+    <div id="main-wrap">
+        
+
+<!-- search-wrap *********************-->
+        <div id="search-wrap">
+            <div id="search-type">
+                <img id='search-type-arrow' src='static/home/images/index/searcharrow.svg'>
+            </div>
+            <div id='search-menu-box'>
+                <div id='search-btn-big-box'>
+                    <div id="engine-text-span">自定义搜索引擎，拖动可排序</div>
+                    <div id="engine-btn-box">
+                        <div id="deleteAllEngine-btn">重置引擎数据</div>
+                        <div id="engine-confirm">保存</div>
+                    </div>
+                </div>
+                <div id='search-menu'>
+                    <!-- <div class="search-engine"><img src='/static/home/images/searchChoice/baiduicon.png'><span>百度</span></div> -->
+                </div>
+            </div>
+            <div id='search-keyword-box'>
+                <!-- <div class="search-keyword">联想词</div> -->
+            </div>
+            <form action="" method="GET" id='search-form'>
+                <input id='search' type="text" name='wd' placeholder="" autocomplete="off" autofocus>
+                <input type="submit" id='search-btn' value="" title="搜索">
+            </form>
+        </div>
+
+<!-- site-wrap *********************-->
+        <div id="site-wrap">
+            <div id="site-text-span">自定义你喜爱的网站，拖动可排序</div>
+            <div id="site-btn-box">
+                <div id="deleteAllSite-btn">重置网站数据</div>
+                <div id="site-confirm">保存</div>
+            </div>
+            <ul id="site-box">                
+                <!-- <a href="" class="site-wrap-a siteA siteAs">
+                    <li class='site-wrap-li siteLi'>
+                        <img class='site-img' src='/static/home/images/siteimg/i0.png'>
+                        <img class='site-delete' title='删除' src='/static/home/images/siteSetDelete.png'>
+                        <img class='site-edit' title='编辑' src='/static/home/images/siteSetChange.png'>
+                    </li>
+                    <span class='site-title'>title</span>
+                </a> -->
+            </ul>
+        </div>
+
+    </div><!-- main-end **-->
+
+
+
+<!-- fixed-btn-wrap *********************-->
+    <div id="fixedBtnBox">
+        
+       <!-- <a id="hongbao-btn" class="rightBtn" href="" target="_blank">
+            <img src="">
+            <div class='hidden-text'></div>
+        </a>
+        <style>
+            #hongbao-btn{
+                opacity:1;
+                display: none;
+                animation:ani1 0.5s 0s linear infinite forwards alternate;
+            }
+            @keyframes ani1{
+                0%{
+                    transform:translateY(5px);
+                }
+                100%{
+                    transform:translateY(-5px);
+                }
+            } 
+        </style>
+       <script>
+            if(!$.cookie('co')){
+                $('#hongbao-btn')[0].style.display='flex';
+            }
+
+            $('#hongbao-btn').click(function(){
+                $('#hongbao-btn').fadeOut(300);
+                $.cookie('co', '9', { expires:1});//3天
+            });               
+        </script> -->
+
+
+        <div id="console-btn" class="rightBtn">
+            <img src="static/home/images/btnsiteset.png">
+            <div class='hidden-text'>自定义</div>
+        </div>
+        <div class="rightBtn console-randbg-btn">
+            <img src="static/home/images/btnbgrandom.png">
+            <div class='hidden-text'>随机壁纸</div>
+        </div>
+        
+    </div>
+
+<!-- beian-wrap *********************-->
+    <div id="beian-wrap">
+        <a id="beian-btn" href="http://beian.miit.gov.cn/" target="_blank" >简法主页 粤ICP备17112242</a>
+    </div>
+
+
+<!-- login-wrap *********************-->
+    <div id="loginBlackBg">
+        <div id="loginBox">
+            <div id="loginText">10秒登录！享随时随地云同步</div>
+            <div id="loginBtnBox">
+                <a id='loginBtnA' href="qqlogin/index.html">
+                    <div id="loginBtn">
+                        <img src="static/home/images/qqloginicon.png">
+                        <div>QQ一键登录</div>
+                    </div>
+                </a>
+                <div id="noLoginBtn">暂不登录</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- site-edit-wrap *********************-->
+    <div id="siteSetBlackBg" class='edit-wrap' style='display:none;'>
+        <div id="newSiteSetBox" class='edit-box'>
+            <div class="edit-list newSiteSetListBox" style="margin-top:30px; ">
+                <div class="edit-name">网址</div>
+                <input id="nssUrlInput" class='edit-input' maxlength="3000" type="text" placeholder="输入或粘贴网址Url"
+                name="">
+            </div>
+            <div class="edit-list newSiteSetListBox">
+                <div class="edit-name">名称</div>
+                <input id="nssNameInput"  class='edit-input' maxlength="20" type="text" placeholder="输入网站名称"
+                name="">
+            </div>
+            <div class="edit-list newSiteSetListBox">
+                <div class='edit-list-icon'>
+                    <div class="edit-name">图标</div>
+                    <div id="nssIconBox" class='edit-icon-box'>
+                        <div>
+                            <img id="nssIcon" src="">
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="iconfile" class='edit-icon-file' name="icon" accept=".jpg,.jpeg,.png,.gif">   
+                <div class='edit-icon-btn-box'>           
+                    <div id="nssUploadBtn" class='edit-icon-btn'  style="margin-right:10px;" title="上传本地图标，支持jpg、jpeg、png、gif格式">上传图标</div>
+                    <div id="nssZhuaqu" class='edit-icon-btn' title="根据网址抓取图标，如果抓取失败将随机分配默认图标">匹配图标</div>
+                </div>  
+            </div>
+            <div id="nssConfirmBox" class='edit-btn-box'>
+                <div id="nssCancel" class='edit-cancel-btn'>取消</div>
+                <div id="nssConfirm" class='edit-confirm-btn'>确认</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- engine-edit-wrap *********************-->
+    <div id="engineSetBlackBg" class='edit-wrap' style="display:none;">
+        <div id="engine-edit-box" class='edit-box'>
+            <div class="edit-list engine-edit-list" style="margin-top:30px; ">
+                <div class="edit-name">引擎网址</div>
+                <input id="engineUrlInput" class='edit-input' maxlength="3000" type="text" placeholder="粘贴引擎网址Url"
+                name="">
+            </div>
+            <span class='edit-list-span'>* 在要添加的网站中搜索 “jianfast”，然后复制搜索结果链接填入上面框中</span>
+            <div class="edit-list engine-edit-list">
+                <div class="edit-name">引擎名称</div>
+                <input id="engineNameInput"  class='edit-input' maxlength="20" type="text" placeholder="输入引擎名称"
+                name="">
+            </div>
+            <div class="edit-list engine-edit-list">
+                <div class='edit-list-icon'>
+                    <div class="edit-name">引擎图标</div>
+                    <div id="engineIconBox" class='edit-icon-box'>
+                        <div>
+                            <img id="engineIcon" src="">
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="file" id="engineIconfile" class='edit-icon-file' name="icon" accept=".jpg,.jpeg,.png,.gif">
+                <div class='edit-icon-btn-box'>                     
+                    <div id="engineUploadBtn" class='edit-icon-btn'  style="margin-right:10px;" title="上传本地图标，支持jpg、jpeg、png、gif格式">上传图标</div>
+                    <div id="engineZhuaqu" class='edit-icon-btn' title="根据网址抓取图标，如果抓取失败将随机分配默认图标">匹配图标</div>
+                </div>
+            </div>
+            <div id="engineConfirmBox" class='edit-btn-box'>
+                <div id="engineCancel" class='edit-cancel-btn'>取消</div>
+                <div id="engineConfirm" class='edit-confirm-btn'>确认</div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+<!--console-wrap Start-->		
+<div id='console-wrap'>
+    <div id='console-box'>
+        <div id='console-header'>
+                <div id="console-title-box">
+                    <img class='console-title-img' src="">
+                    <span class='console-title'></span>
+                </div>
+                <div id="save-box">                    
+                    <div id="console-save-btn"><img class='console-save-icon' src='static/home/images/console/saveicon.svg'>保存</div>
+                    <img id='console-eye-btn' src='static/home/images/console/eye.svg'>                    
+                </div>	
+                <div id='console-close-btn'></div>		
+        </div>
+        
+        <div id="console-menu">
+            <div id="console-menu-main">
+                <div id="user-box">
+                    <div class="user-head"></div>
+                    <span class='user-name'>您还未<span style='color:#4489F4;'>登录</span></span>
+                </div>
+                
+                <div class="console-menu-btn console-bgset-btn">设置壁纸</div>
+                <div class="console-menu-btn console-siteset-btn">编辑图标链接</div>
+                <div class="console-menu-btn console-engineset-btn">编辑搜索引擎</div>
+                <div class="console-menu-btn console-uiset-btn">设置页面布局</div>
+                
+            </div>
+            <div id="console-bottom-btn-box">
+                <a class="console-rating btn" rel="nofollow" target="_blank" href=""><span class='console-rating-span'></span><img class='console-rating-img' src=''></a>
+                <!-- <a class="console-bottom-ad" target="_blank" href="https://bz.zzzmh.cn/?fr=jf"><img src='/static/home/images/console/jijianbizhi.jpg'></a> -->
+                
+                
+                
+
+                
+                <!-- <a class="console-bottom-ad" target="_blank" href="https://t.vip.com/rKdwrNNwTi8"><img src='/static/home/images/console/nike09.jpg'></a> -->
+
+                <a class="console-bottom-btn" target="_blank" href="zhuye/index.html">设为主页</a>
+                <a class="console-bottom-btn" target="_blank" href="about/index.html">关于</a>
+                <a class="console-bottom-btn" target="_blank" href="zhinan/index.html">使用指南</a>
+                <div id="signout-btn" class="console-bottom-btn" target="_blank" href="https://baidu.com">退出登录</div>
+            </div>
+            <div id="console-bottom-text">版权所有©Jianfast.com <a id="console-beian-btn" href="http://beian.miit.gov.cn/" target="_blank" >粤ICP备17112242</a></div>
+        </div>
+
+        <div class='bg-title-box'>
+            <div class='bg-title-right'>壁纸库</div>
+            <div class='bg-title-left'>使用本地/网络壁纸</div>
+        </div>
+        <div id='console-bg-content'>
+
+            <div id='bg-pic-wrap'></div>
+            <div id='set-picurl-wrap'>
+                <div id="set-picurl-input-box">
+                    <input id="set-picurl-input" maxlength="200" type="text" placeholder="输入图片网址Url" name="">
+                    <div id='set-picurl-btn'>确认</div>
+                </div>
+                <span class='set-picurl-text1' id='set-picurl-warning'>支持https开头的jpg、png、gif、bmp格式图片</span>
+                <span class='set-picurl-text2'>如何上传本地图片？</span>
+                <span class='set-picurl-text1'>将本地图片上传至以下图床或其他网站，复制图片Url填入框中确认。</span>
+                <div class='picsite-box'>
+                    <a href="https://imgse.com/" rel="nofollow" target="_blank">路过图床</a>
+                    <!-- <a href="https://imgkr.com/" rel="nofollow" target="_blank">图壳图床</a> -->
+                </div>                
+                <span class='set-picurl-text1'>
+                    请复制图床中一般以.jpg等图片后缀结尾的Url，
+                    <br>如“https://xxx.com/xxx.jpg”
+                    <br><br>为避免图片加载缓慢，请尽量选择访问快速的图片。</span>
+                        
+            </div>
+
+            
+            <div id='bg-load-text'>壁纸加载中……</div>
+        </div>
+
+        <div id='console-content'>
+                <div class="console-ui-group">
+                    <div class='console-bigTitle'>页面预设值</div>
+                    <div id="ui-default-box">
+                        <div class="ui-default-btn" data-defaultdata='0'>默认预设</div>
+                        <div class="ui-default-btn" data-defaultdata='1'>窄屏预设</div>
+                        <div class="ui-default-btn" data-defaultdata='2'>极简</div>
+                    </div>
+                </div>
+
+                <div class="console-ui-group">
+                    <div class='console-bigTitle'>搜索框</div>
+                    
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>搜索框不透明度</span>
+                            <span class='ui-params'>80%</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='search_opacity' data-paramsmin='10' data-paramsmax='100' data-paramsunit='%'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>宽度占比</span>
+                            <span class='ui-params'>80%</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='search_width' data-paramsmin='20' data-paramsmax='100' data-paramsunit='%'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>搜索框高度值</span>
+                            <span class='ui-params'>54px</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='search_height' data-paramsmin='40' data-paramsmax='70' data-paramsunit='px'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>搜索框圆角</span>
+                            <span class='ui-params'>4px</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='search_radius' data-paramsmin='0' data-paramsmax='50' data-paramsunit='px'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class="ui-switch">
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>新标签页打开搜索结果</span>
+                            <div class='ui-switch-btn' data-paramsname='search_open'>
+                                <div class='ui-switch-btn-circular'></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui-switch">
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>输入时显示联想词</span>
+                            <div class='ui-switch-btn' data-paramsname='search_keyword'>
+                                <div class='ui-switch-btn-circular'></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui-switch">
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>显示热搜</span>
+                            <div class='ui-switch-btn' data-paramsname='search_hotword'>
+                                <div class='ui-switch-btn-circular'></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui-switch">
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>搜索后清空搜索框</span>
+                            <div class='ui-switch-btn' data-paramsname='search_empty'>
+                                <div class='ui-switch-btn-circular'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="console-ui-group">
+                    <div class='console-bigTitle'>图标链接</div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>宽度占比</span>
+                            <span class='ui-params'>100%</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='site_width' data-paramsmin='30' data-paramsmax='100' data-paramsunit='%'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>图标不透明度</span>
+                            <span class='ui-params'>80%</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='site_opacity' data-paramsmin='10' data-paramsmax='100' data-paramsunit='%'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>图标圆角</span>
+                            <span class='ui-params'>50%</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='site_radius' data-paramsmin='0' data-paramsmax='50' data-paramsunit='%'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>图标大小</span>
+                            <span class='ui-params'>54px</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='siteli_size' data-paramsmin='30' data-paramsmax='70' data-paramsunit='px'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>图标左右间距</span>
+                            <span class='ui-params'></span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='site_row' data-paramsmin='0' data-paramsmax='100' data-paramsunit='px'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>图标上下间距</span>
+                            <span class='ui-params'></span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='site_column' data-paramsmin='0' data-paramsmax='100' data-paramsunit='px'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+                    
+                    <div class="ui-switch">
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>显示图标名称</span>
+                            <div class='ui-switch-btn' data-paramsname='site_titleshow'>
+                                <div class='ui-switch-btn-circular'></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui-switch">
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>新标签页打开链接</span>
+                            <div class='ui-switch-btn' data-paramsname='site_open'>
+                                <div class='ui-switch-btn-circular'></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui-switch">
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>隐藏所有图标</span>
+                            <div class='ui-switch-btn' data-paramsname='site_allhide'>
+                                <div class='ui-switch-btn-circular'></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="console-ui-group">
+                    <div class='console-bigTitle'>其他</div>
+                    
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>内容区总宽度</span>
+                            <span class='ui-params'>1000px</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='main_width' data-paramsmin='300' data-paramsmax='2000' data-paramsunit='px'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>壁纸遮罩浓度</span>
+                            <span class='ui-params'>10%</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='mask_opacity' data-paramsmin='0' data-paramsmax='100' data-paramsunit='%'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>壁纸模糊度</span>
+                            <span class='ui-params'>10%</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='bg_blur' data-paramsmin='0' data-paramsmax='100' data-paramsunit='%'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+
+                    <div class='ui-adjust'>
+                        <div class='ui-title-box'>
+                            <span class='ui-title'>搜索框与图标间距</span>
+                            <span class='ui-params'>160px</span>
+                        </div>
+                        <div class="adjust-box">
+                            <div class='ui-adjust-btn'  data-paramsname='search_spacing' data-paramsmin='50' data-paramsmax='400' data-paramsunit='px'></div>
+                            <div class='ui-adjust-line'></div>
+                        </div>
+                    </div>
+                </div>
+
+ 
+
+
+
+
+
+
+
+                <!-- <div class='uiTitleBox'>
+                    <span class='uiTitle'>关键词联想框</span>
+                    <span class='uiParams'>始终显示</span>
+                </div> -->
+            
+        </div>
+
+    </div>
+    	
+</div>
+<!--ui end-->
+
+
+<!--notice Start*******************
+    <div id="notice-wrap"
+    style='position:fixed; bottom:80px;z-index:100;font-size:16px;display:none;justify-content:center;width:100%;'
+    >
+        <div id='notice-bgbox'
+        style="display:flex;justify-content:center;align-item:center;background-color:rgba(0, 0, 0, 0.5);color:white;border-radius:100px;text-align:center;padding:14px 40px;text-shadow: 0 1px 3px rgb(0 0 0 / 40%);">
+            <img src='/static/home/images/index/notice.svg' style='width:18px;margin-right:8px;user-select:none;-ms-user-select:none;'>
+            <span>content</span>
+            <img id='notice-close-btn' src='static/home/images/console/closeiconwhite.svg' style='width:16px;margin-left:20px;user-select:none;-ms-user-select:none;cursor:pointer;'>
+        </div>
+        
+    </div>
+    <script src="_ext/cdn_bootcdn_net/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script>
+        if(!$.cookie('jfnotice')){
+            $('#notice-wrap')[0].style.display='flex';
+        }
+
+        $('#notice-close-btn').click(function(){
+            $('#notice-wrap').fadeOut(300);
+            $.cookie('jfnotice', 'noshow', { expires: 7 });//7天
+        });               
+    </script>
+-->    
+
+<div id="welcome-wrap">
+    <div id="welcome-box">
+        <div id="welcome-text">简法主页<br>做一个简洁、方便的浏览器主页<br><span><br>支持自定义壁纸、网站、搜索引擎<br>喜欢的话欢迎设置为浏览器主页哦！<br><br><span></div>
+        <a id="welcome-btn" class='btn' href='zhuye/index.d4f5c2.html' target='_blank'><img id="welcome-btn-img" src="zhuye/images/chrome.svg"><span class='welcome-btn-text'>设为浏览器主页<span></a>
+        <div class='welcome-btn-tips'>打开浏览器默认显示简法主页</div>
+        <img id="welcome-close" src="static/home/images/newvistorbox3.png" title="关闭">
+    </div>
+</div>
+        
+
+<!-- 本地镜像离线补丁：先载入接口数据，再拦截后端 XHR -->
+    <script src="_api/payload.js"></script>
+    <script src="offline-shim.js"></script>
+</body>
+
+
+
+</html>

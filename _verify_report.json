@@ -1,0 +1,22 @@
+{
+  "missing": [
+    [
+      "index.html",
+      "/static/home/images/searchChoice/baiduicon.png"
+    ],
+    [
+      "about/index.html",
+      "../header.html"
+    ],
+    [
+      "static/home/css/index/base.9f99ea.css",
+      "/static/home/images/searchChoice/baiduicon.png"
+    ],
+    [
+      "zhinan/index.html",
+      "../header.html"
+    ]
+  ],
+  "remote": [],
+  "ok": 274
+}

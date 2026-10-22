@@ -1,0 +1,304 @@
+* {
+	margin: 0;
+	padding: 0
+}
+
+img {
+	border: 0 none;
+}
+
+input::-ms-clear, input::-ms-reveal {
+	display: none;
+}
+
+body {
+	color: #333333;
+	font-size: 16px;
+	font-family: -apple-system, 'Helvetica Neue', sans-serif,"Microsoft Yahei","Hiragino Sans GB","Heiti SC","WenQuanYi Micro Hei";
+	/* font-weight: lighter; */
+}
+
+/* 设置滚动条的样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    }
+    /* 滚动槽 */
+    ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset006pxrgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    }
+    /* 滚动条滑块 */
+    ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: inset006pxrgba(0, 0, 0, 0.5);
+    }
+    ::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(0, 0, 0, 0.1);
+    }
+
+#grayDiv {
+	width: 100%;
+	background-color: #f5f5f5;
+	/* overflow: hidden; */
+	padding:100px 0;
+}
+
+
+
+
+
+
+/* head----------------------------- */
+
+#headDiv {
+	width: 100%;
+	height: 120px;
+	background-color: white;
+}
+
+#headWidthDiv {
+	width: 80%;
+	height: 100%;
+	max-width: 1480px;
+	margin: 0 auto 0 auto;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+#headLogo {
+	height: 40px;
+}
+
+#headLogo img {
+	width: 100%;
+	height: 100%;
+}
+
+#headWidthDiv ul {
+}
+
+#headWidthDiv ul a {
+	display: block;
+	width: 120px;
+	text-align: center;
+	float: left;
+	color: #333333;
+	font-size: 16px;
+	text-decoration: none;
+}
+
+#headWidthDiv ul a:hover {
+	color: #000000
+}
+
+
+
+/* text----------------------------- */
+
+#widthDiv {
+	width: 80%;
+	max-width: 1480px;
+	background-color:;
+	margin: 0 auto 0 auto;
+}
+
+.textMain {
+	width: 100%;
+	border-radius: 10px;
+	box-sizing: border-box;
+	border: 0px solid transparent;
+}
+
+.textDiv {
+	width: 100%;
+	font-size: 14px;
+}
+
+.fontTitle1 {
+	font-size: 26px;
+	color: #333333
+}
+
+.fontTitle2 {
+	font-size: 22px;
+	color: #333333
+}
+
+.fontTitle3 {
+	font-size: 18px;
+	color: #333333
+}
+
+.font1 {
+	font-size: 16px;
+	color: #4d4d4d
+}
+
+.font2 {
+	font-size: 14px;
+	color: #4d4d4d
+}
+
+.font3 {
+	font-size: 12px;
+	color: #666666
+}
+
+
+
+
+/* bottom----------------------------- */
+
+#bottomDiv {
+	width: 100%;	
+	background-color: rgb(255, 255, 255);
+	margin-top: 40px;
+}
+
+#botWidthDiv {
+	width: 80%;
+	height: 180px;
+	max-width:1480px;
+	background-color:;
+	margin: 0 auto 0 auto;
+	/* overflow: hidden; */
+	display: flex;	
+	flex-flow: column nowrap;
+	justify-content:space-between;
+}
+
+#botLink {
+	margin-top: 60px;
+}
+
+#botLink a {
+	text-decoration: none;
+	font-size: 14px;
+	color: #4d4d4d;
+}
+
+#botLink a:hover {
+	color: #000000
+}
+
+#botText {
+	width: 100%;
+	height: 40px;
+	font-size: 12px;
+	color: #808080;
+}
+
+#bottom-text-box{
+	border-top:1px solid #f7f7f7;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	height: 40px;
+}
+
+#bottom-beian{
+	color:#808080;
+	text-decoration: none;
+}
+#bottom-beian:hover {
+	color: #4d4d4d;
+}
+
+#botCopyright {	
+	font-size: 12px;
+	color: #808080;
+}
+
+#youqinglianjie {
+	font-size: 12px;
+	color: #cccccc;
+}
+
+#youqinglianjie a {
+	text-decoration: none;
+	font-size: 12px;
+	color: #cccccc;
+}
+
+#youqinglianjie a:hover {
+	color: #4d4d4d;
+}
+
+#botErcode {
+	width: 116px;
+	height: 150px;
+	float: right;
+	background-color:;
+	margin-top: 16px;
+}
+
+#botErcode img {
+	width: 116;
+	height: 116px;
+}
+
+#botErcode a {
+	width: 100%;
+	display: block;
+	text-decoration: none;
+	font-size: 12px;
+	color: #808080;
+	text-align: center;
+	line-height: 14px;
+}
+
+#botErcode span {
+	text-decoration: underline;
+}
+
+#botErcode a:hover {
+	color: #4d4d4d;
+}
+
+#bottomIframe {
+	width: 100%;
+	height: 180px;
+	border: none;
+	overflow: hidden;
+	margin-top: 40px;
+	padding: 0;
+}
+
+
+
+
+
+@media (max-width:640px){ 
+
+#widthDiv {
+	width: 90%;
+}
+
+#botWidthDiv {
+	width: 90%;
+}
+
+#headWidthDiv {
+	width: 90%;
+}
+
+#headWidthDiv ul a {
+	width: 80px;
+}
+
+#headWidthDiv ul {
+	display: none;
+}
+
+#youqinglianjie{
+	display: none;
+}
+
+
+
+
+}

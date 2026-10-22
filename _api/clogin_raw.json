@@ -1,0 +1,225 @@
+{
+  "userData": {
+    "user_type": 0
+  },
+  "siteData": [
+    {
+      "sort": 0,
+      "title": "淘宝",
+      "url": "https://www.taobao.com/",
+      "icon": "static/home/images/siteimg/taobao.svg"
+    },
+    {
+      "sort": 1,
+      "title": "天猫",
+      "url": "https://www.tmall.com/",
+      "icon": "static/home/images/siteimg/tmall.svg"
+    },
+    {
+      "sort": 2,
+      "title": "京东",
+      "url": "https://www.jd.com/",
+      "icon": "static/home/images/siteimg/jd.svg"
+    },
+    {
+      "sort": 3,
+      "title": "唯品会",
+      "url": "https://www.vip.com/",
+      "icon": "static/home/images/siteimg/vip.svg"
+    },
+    {
+      "sort": 4,
+      "title": "携程旅行",
+      "url": "http://www.ctrip.com/?AllianceID=1042641&sid=1748665&ouid=&app=0101F00",
+      "icon": "static/home/images/siteimg/ctrip.svg"
+    },
+    {
+      "sort": 5,
+      "title": "豆包AI",
+      "url": "https://www.doubao.com/chat/",
+      "icon": "static/home/images/siteimg/doubaoplus.png"
+    },
+    {
+      "sort": 6,
+      "title": "秘塔回响",
+      "url": "https://metaso.cn/echo?s=hxcs2",
+      "icon": "static/home/images/siteimg/mitaecho.png"
+    },
+    {
+      "sort": 7,
+      "title": "学术版Codex",
+      "url": "https://qiewenpaper.com/zh?utm_source=jianfast",
+      "icon": "static/home/images/siteimg/qiewen.png"
+    },
+    {
+      "sort": 8,
+      "title": "小红书",
+      "url": "https://www.xiaohongshu.com/explore",
+      "icon": "static/home/images/siteimg/xiaohongshu.svg"
+    },
+    {
+      "sort": 9,
+      "title": "知乎",
+      "url": "https://www.zhihu.com/",
+      "icon": "static/home/images/siteimg/zhihu.svg"
+    },
+    {
+      "sort": 10,
+      "title": "哔哩哔哩",
+      "url": "https://www.bilibili.com/",
+      "icon": "static/home/images/siteimg/bilibili.svg"
+    },
+    {
+      "sort": 11,
+      "title": "新浪微博",
+      "url": "https://weibo.com/",
+      "icon": "static/home/images/siteimg/weibo.svg"
+    },
+    {
+      "sort": 12,
+      "title": "斗鱼",
+      "url": "https://www.douyu.com/",
+      "icon": "static/home/images/siteimg/douyu.svg"
+    },
+    {
+      "sort": 13,
+      "title": "抖音",
+      "url": "https://www.douyin.com/",
+      "icon": "static/home/images/siteimg/douyin.svg"
+    },
+    {
+      "sort": 14,
+      "title": "腾讯视频",
+      "url": "https://v.qq.com/",
+      "icon": "static/home/images/siteimg/tencentvideo.svg"
+    },
+    {
+      "sort": 15,
+      "title": "腾讯新闻",
+      "url": "https://news.qq.com/",
+      "icon": "static/home/images/siteimg/tencent.svg"
+    },
+    {
+      "sort": 16,
+      "title": "网易云音乐",
+      "url": "https://music.163.com/",
+      "icon": "static/home/images/siteimg/163music.svg"
+    },
+    {
+      "sort": 17,
+      "title": "翻译",
+      "url": "https://fanyi.baidu.com/",
+      "icon": "static/home/images/siteimg/baidufanyi.svg"
+    }
+  ],
+  "engineData": [
+    {
+      "sort": 0,
+      "title": "百度",
+      "url1": "https://www.baidu.com/s?tn=15007414_15_dg&wd=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/baidu.svg"
+    },
+    {
+      "sort": 1,
+      "title": "综合搜索",
+      "url1": "https://www.so.com/s?src=lm&ls=sm3021527&lm_extend=ctype:31&q=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/zonghesou.svg"
+    },
+    {
+      "sort": 2,
+      "title": "Google",
+      "url1": "https://www.google.com/search?q=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/google.svg"
+    },
+    {
+      "sort": 3,
+      "title": "腾讯视频",
+      "url1": "https://cn.bing.com/search?q=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/qqvideo.svg"
+    },
+    {
+      "sort": 4,
+      "title": "京东商城",
+      "url1": "https://union-click.jd.com/jdc?type=union&p=JF8BAGoKGloQXAIBUF5fOE8nAl8JKx9KBVhdDxxtUQ5SQmQWBR1TGxlZAUEPVhcnAToLGQwSXQEHUl1cDU1DVD9dHAgTWFVQBApVXEIUV2c4RB9IADYCVV9cDE0VBW8LK2sVXDYyZG5tOEonM184&t=W1dCFBBFC0RUQUpADgpQTFs=&e=&tu=http%3A%2F%2Fsearch.jd.com%2FSearch%3Fkeyword%3D",
+      "url2": "%26enc%3Dutf-8",
+      "icon": "static/home/images/searchChoice/jd.svg"
+    },
+    {
+      "sort": 5,
+      "title": "搜优惠券",
+      "url1": "https://tao.yku.cc/index.php?r=/l&sort=0&kw=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/youhui.svg"
+    },
+    {
+      "sort": 6,
+      "title": "网易云音乐",
+      "url1": "https://music.163.com/#/search/m/?s=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/wangyimusic.svg"
+    },
+    {
+      "sort": 7,
+      "title": "Bing",
+      "url1": "https://cn.bing.com/search?q=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/bing.svg"
+    },
+    {
+      "sort": 8,
+      "title": "知乎",
+      "url1": "https://www.zhihu.com/search?type=content&q=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/zhihu.svg"
+    },
+    {
+      "sort": 9,
+      "title": "Bilibili",
+      "url1": "https://search.bilibili.com/all?keyword=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/bilibili.svg"
+    },
+    {
+      "sort": 10,
+      "title": "微博",
+      "url1": "https://s.weibo.com/weibo?q=",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/weibo.svg"
+    },
+    {
+      "sort": 11,
+      "title": "中英互译",
+      "url1": "https://fanyi.baidu.com/#auto/en/",
+      "url2": "",
+      "icon": "static/home/images/searchChoice/baidufanyi.svg"
+    }
+  ],
+  "uiData": {
+    "search_opacity": "80",
+    "search_width": "70",
+    "search_height": "66",
+    "search_radius": "4",
+    "search_open": "1",
+    "search_keyword": "1",
+    "search_hotword": "0",
+    "search_empty": "0",
+    "site_width": "100",
+    "site_opacity": "80",
+    "site_radius": "50",
+    "siteli_size": "68",
+    "site_row": "40",
+    "site_column": "28",
+    "site_titleshow": "1",
+    "site_open": "1",
+    "site_allhide": "0",
+    "main_width": "1200",
+    "mask_opacity": "0",
+    "bg_blur": "0",
+    "search_spacing": "200",
+    "bg_url": "static/home/images/bg-default.jpg"
+  }
+}
