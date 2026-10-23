@@ -1,3 +1,20 @@
+function readReadyWallpaper(){
+    try{
+        var data=JSON.parse(localStorage.getItem('jf_bg_ready')||'');
+        var category=localStorage.getItem('jf_bg_category')||'';
+        if(data && data.url && data.category===category){
+            return data;
+        }
+    }catch(e){}
+    return null;
+}
+(function(){
+    var ready=readReadyWallpaper();
+    var bg=document.getElementById('bg-wrap');
+    if(ready && bg){
+        bg.style.backgroundImage='url("'+ready.url+'")';
+    }
+})();
 function consolejs(uiData){
     var setState=null;//当前设置项
 
@@ -10,10 +27,21 @@ function consolejs(uiData){
         $('#bg-wrap')[0].style.backgroundImage="url("+url+")";
         setCookie('loadingbg',url,365);
     }
-    applyBg(uiData['bg_url']);
     var savedBgCategory=localStorage.getItem(BG_CATEGORY_KEY)||'';
-    if(savedBgCategory){
-        rotateBg(savedBgCategory);
+    var readyWallpaper=readReadyWallpaper();
+    if(savedBgCategory && readyWallpaper){
+        applyBg(readyWallpaper.url);
+        markBgUsed(readyWallpaper.url);
+        preloadNextBg(savedBgCategory, readyWallpaper.url);
+    }
+    else if(savedBgCategory){
+        applyBg(uiData['bg_url']);
+        rotateBg(savedBgCategory, function(url){
+            preloadNextBg(savedBgCategory, url);
+        });
+    }
+    else{
+        applyBg(uiData['bg_url']);
     }
     // var oBg=document.createElement('iframe');
     // oBg.id="bg";
@@ -23,7 +51,10 @@ function consolejs(uiData){
 
     //切换随机壁纸图片--------------------------
     $('.console-randbg-btn').click(function(){
-        rotateBg(localStorage.getItem(BG_CATEGORY_KEY)||'');
+        var category=localStorage.getItem(BG_CATEGORY_KEY)||'';
+        rotateBg(category, function(url){
+            preloadNextBg(category, url);
+        });
     });
 
     //下载当前壁纸    
@@ -547,7 +578,7 @@ $('#console-title-box').click(function(){
     var bgRequestId=0;
     $ajaxBgStatus=1;
 
-    function rotateBg(category){
+    function rotateBg(category, done){
         var fd=new FormData();
         if(category){
             fd.append('category', category);
@@ -560,7 +591,47 @@ $('#console-title-box').click(function(){
                 if(data.success && data.bg_url){
                     nowBgpic=data.bg_url;
                     applyBg(data.bg_url);
+                    if(done){
+                        done(data.bg_url);
+                    }
                 }
+            }
+        };
+        req.send(fd);
+    }
+
+    function markBgUsed(url){
+        var fd=new FormData();
+        fd.append('image_path', url);
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/bg/use',true);
+        req.send(fd);
+    }
+
+    function preloadNextBg(category, currentUrl){
+        var fd=new FormData();
+        if(category){
+            fd.append('category', category);
+        }
+        if(currentUrl){
+            fd.append('exclude', currentUrl);
+        }
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/bg/peek',true);
+        req.onreadystatechange=function(){
+            if(req.readyState==4 && req.status==200){
+                var data=JSON.parse(req.response);
+                if(!data.success || !data.bg_url){
+                    return;
+                }
+                var img=new Image();
+                img.onload=function(){
+                    localStorage.setItem('jf_bg_ready', JSON.stringify({
+                        category: data.category || category,
+                        url: data.bg_url
+                    }));
+                };
+                img.src=data.bg_url;
             }
         };
         req.send(fd);
@@ -592,7 +663,9 @@ $('#console-title-box').click(function(){
         renderBgCategories();
         resetBgList();
         if(changed){
-            rotateBg(category);
+            rotateBg(category, function(url){
+                preloadNextBg(category, url);
+            });
         }
     }
 
