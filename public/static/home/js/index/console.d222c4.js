@@ -8,12 +8,28 @@ function readReadyWallpaper(){
     }catch(e){}
     return null;
 }
+function cssBackgroundUrl(value){
+    var text=String(value||'');
+    var matched=text.match(/url\((['"]?)(.*?)\1\)/i);
+    if(matched){
+        text=matched[2];
+    }
+    return text.replace('/400/','/');
+}
 (function(){
     var ready=readReadyWallpaper();
     var bg=document.getElementById('bg-wrap');
-    if(ready && bg){
-        bg.style.backgroundImage='url("'+ready.url+'")';
+    if(!ready || !bg){
+        return;
     }
+    var img=new Image();
+    img.onload=function(){
+        bg.style.backgroundImage='url("'+ready.url+'")';
+    };
+    img.onerror=function(){
+        localStorage.removeItem('jf_bg_ready');
+    };
+    img.src=ready.url;
 })();
 function consolejs(uiData){
     var setState=null;//当前设置项
@@ -24,15 +40,26 @@ function consolejs(uiData){
     var BG_CATEGORY_KEY='jf_bg_category';
     function applyBg(url){
         uiData['bg_url']=url;
-        $('#bg-wrap')[0].style.backgroundImage="url("+url+")";
+        $('#bg-wrap')[0].style.backgroundImage='url("'+url+'")';
         setCookie('loadingbg',url,365);
     }
     var savedBgCategory=localStorage.getItem(BG_CATEGORY_KEY)||'';
     var readyWallpaper=readReadyWallpaper();
     if(savedBgCategory && readyWallpaper){
-        applyBg(readyWallpaper.url);
-        markBgUsed(readyWallpaper.url);
-        preloadNextBg(savedBgCategory, readyWallpaper.url);
+        var readyImage=new Image();
+        readyImage.onload=function(){
+            applyBg(readyWallpaper.url);
+            markBgUsed(readyWallpaper.url);
+            preloadNextBg(savedBgCategory, readyWallpaper.url);
+        };
+        readyImage.onerror=function(){
+            localStorage.removeItem('jf_bg_ready');
+            applyBg(uiData['bg_url']);
+            rotateBg(savedBgCategory, function(url){
+                preloadNextBg(savedBgCategory, url);
+            });
+        };
+        readyImage.src=readyWallpaper.url;
     }
     else if(savedBgCategory){
         applyBg(uiData['bg_url']);
@@ -51,6 +78,12 @@ function consolejs(uiData){
 
     //切换随机壁纸图片--------------------------
     $('.console-randbg-btn').click(function(){
+        var head=this.querySelector('.pinwheel-head');
+        if(head){
+            head.classList.remove('is-spinning');
+            void head.offsetWidth;
+            head.classList.add('is-spinning');
+        }
         var category=localStorage.getItem(BG_CATEGORY_KEY)||'';
         rotateBg(category, function(url){
             preloadNextBg(category, url);
@@ -449,7 +482,7 @@ $('#console-title-box').click(function(){
         $('.bg-title-box').fadeOut(); 
         uiDrawing(uiData,0);
         //打开页面时的壁纸
-        $('#bg-wrap')[0].style.backgroundImage="url("+uiData['bg_url']+")";
+        $('#bg-wrap')[0].style.backgroundImage='url("'+uiData['bg_url']+'")';
         tempUiData = $.extend(true,[],uiData);//重置tempUiData
     });
 
@@ -739,9 +772,9 @@ $('#console-title-box').click(function(){
                             oNewBgDiv.className="bg-pic-box";
                             var realPicPath=ajaxBgList[i].replace('/400/',"/");
                             oNewBgDiv.innerHTML="<a download href='"+realPicPath+"' class='set-pic-btn btn' target='_blank' title='下载壁纸'></a>";
-                            oNewBgDiv.style.backgroundImage="url('"+ajaxBgList[i]+"')";
-                            oBgPicWrap.appendChild(oNewBgDiv); 
-                            $('.bg-pic-box').css('height',$('.bg-pic-box')[0].offsetWidth/1920*1080+'px');
+                            oNewBgDiv.style.backgroundImage='url("'+ajaxBgList[i]+'")';
+                            oNewBgDiv.style.height=((oBgPicWrap.clientWidth||320)/16*9)+'px';
+                            oBgPicWrap.appendChild(oNewBgDiv);
                         }
                         oBgLoadText.innerHTML='';
                         clickBgPic();
@@ -755,12 +788,9 @@ $('#console-title-box').click(function(){
     
     function clickBgPic(){
         $(".bg-pic-box").click(function(){
-            nowBgpic=this.style.backgroundImage;
-            nowBgpic=nowBgpic.replace('url("',"");
-            nowBgpic=nowBgpic.replace('")',"");
-            nowBgpic=nowBgpic.replace('/400/',"/");
+            nowBgpic=cssBackgroundUrl(this.style.backgroundImage);
             // alert(nowBgpic);
-            $('#bg-wrap')[0].style.backgroundImage="url("+nowBgpic+")";
+            $('#bg-wrap')[0].style.backgroundImage='url("'+nowBgpic+'")';
             // oBgPicBox.src='./home/bg/show?type=temp&picurl='+nowBgpic;
             $('#console-title-box')[0].style.display='none';
             $('#save-box')[0].style.display='flex';
@@ -809,7 +839,7 @@ $('#console-title-box').click(function(){
             }
             oBgWarning.style.color='#7f7f7f'; 
             nowBgpic=oBgInput.value;           
-            $('#bg-wrap')[0].style.backgroundImage="url("+nowBgpic+")";
+            $('#bg-wrap')[0].style.backgroundImage='url("'+nowBgpic+'")';
             $('#console-title-box')[0].style.display='none';
             $('#save-box')[0].style.display='flex';
         }

@@ -243,6 +243,30 @@
     width:100%;
     height:100%;
 }
+.rightBtn.pinwheel-btn{
+    width:52px;
+    height:78px;
+    opacity:0.95;
+    margin-bottom:0;
+}
+.pinwheel-svg{
+    width:100%;
+    height:100%;
+    display:block;
+    overflow:visible;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));
+}
+.pinwheel-head{
+    transform-box:fill-box;
+    transform-origin:center;
+}
+.pinwheel-head.is-spinning{
+    animation:pinwheel-turn .7s linear;
+}
+@keyframes pinwheel-turn{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+}
 
 .hidden-text{
     position: absolute;

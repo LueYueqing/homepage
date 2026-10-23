@@ -1,5 +1,5 @@
 export const metadata = {
-  title: '简法主页',
+  title: '清新主页',
   description: '简法主页是一个极简风格的主页网站，简洁清新，轻快大方。',
   icons: { icon: '/favicon.ico' },
 };

@@ -20,7 +20,7 @@ const HOME_SCRIPTS = [
 ];
 
 export const metadata = {
-  title: '简法主页',
+  title: '清新主页',
   keywords: '简法,简法主页,简法导航,网址导航',
 };
 
