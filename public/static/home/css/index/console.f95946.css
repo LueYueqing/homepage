@@ -757,6 +757,34 @@ color:#cccccc;
     border:1px solid #2c7bf6;
     color:#2c7bf6;
 }
+#bg-category-bar{
+    display:none;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:8px 29px 4px 0;
+}
+.bg-category-chip{
+    border-radius:100px;
+    border:1px solid #d0d0d0;
+    height:22px;
+    line-height:22px;
+    font-size:12px;
+    padding:0 10px;
+    color:#666666;
+    cursor:pointer;
+    user-select:none;
+}
+.bg-category-chip.active{
+    border-color:#2c7bf6;
+    color:#2c7bf6;
+    background:#f3f7ff;
+}
+.bg-category-hint{
+    width:100%;
+    font-size:12px;
+    line-height:18px;
+    color:#999999;
+}
 #bg-pic-wrap{
     display: flex;
     flex-flow:column nowrap;

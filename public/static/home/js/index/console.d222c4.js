@@ -3,9 +3,18 @@ function consolejs(uiData){
 
     //获取壁纸--------------------------
     // var oBgWrap=document.getElementById('bg-wrap');
-    //打开页面时的壁纸
-    $('#bg-wrap')[0].style.backgroundImage="url("+uiData['bg_url']+")";
-    setCookie('loadingbg',uiData['bg_url'],365);
+    //打开页面时的壁纸。已选分类时，按最后使用时间轮换一张。
+    var BG_CATEGORY_KEY='jf_bg_category';
+    function applyBg(url){
+        uiData['bg_url']=url;
+        $('#bg-wrap')[0].style.backgroundImage="url("+url+")";
+        setCookie('loadingbg',url,365);
+    }
+    applyBg(uiData['bg_url']);
+    var savedBgCategory=localStorage.getItem(BG_CATEGORY_KEY)||'';
+    if(savedBgCategory){
+        rotateBg(savedBgCategory);
+    }
     // var oBg=document.createElement('iframe');
     // oBg.id="bg";
     // oBgWrap.appendChild(oBg);
@@ -14,27 +23,7 @@ function consolejs(uiData){
 
     //切换随机壁纸图片--------------------------
     $('.console-randbg-btn').click(function(){
-        // oBg.src='/home/bg/show?type=rand';
-
-                    //Ajax至服务器 //2025aa
-                    // var fd = new FormData();		//文件
-                    var req=new XMLHttpRequest();
-                    req.open('POST','home/bg/randbg',true);//异步
-                    // fd.append("bg", nowBgpic);                 
-                    req.onreadystatechange=function(){					    	
-                        if(req.readyState==4 && req.status==200){					    	
-                            if(JSON.parse(req.response)['success']){     
-                                nowBgpic=JSON.parse(req.response)['bg_url'];
-                                uiData['bg_url']=nowBgpic;
-                                $('#bg-wrap')[0].style.backgroundImage="url("+uiData['bg_url']+")";
-                                // showmsg('壁纸保存成功');   
-                                // $("#fixedBtnBox").fadeIn(300);       
-                                // $('#console-wrap').fadeOut(300); 
-                            }
-                        }
-                    }
-                    req.send();
-
+        rotateBg(localStorage.getItem(BG_CATEGORY_KEY)||'');
     });
 
     //下载当前壁纸    
@@ -336,7 +325,8 @@ $('#console-title-box').click(function(){
         $("#fixedBtnBox").hide();
         $('#console-content').hide();
         $('#console-bg-content').hide();  
-        $('.bg-title-box').hide(); 
+        $('.bg-title-box').hide();
+        $('#bg-category-bar').hide();
         switch (showKind){
             case 'menu':
                 // alert('主目录')
@@ -351,7 +341,6 @@ $('#console-title-box').click(function(){
             case 'bgset-lib':
                 // alert('壁纸库');
                 setState='bg';
-                ajaxBg();
                 $('#console-title-box')[0].style.display='flex';
                 $('.bg-title-box')[0].style.display='flex';                
                 $('#save-box')[0].style.display='none';
@@ -359,11 +348,13 @@ $('#console-title-box').click(function(){
                 $('.console-title')[0].innerHTML='设置壁纸';                
                 $('#console-menu').hide();        
                 $('#console-bg-content').show();
+                $('#bg-category-bar').css('display','flex');
                 $('.bg-title-left')[0].innerHTML='使用本地/网络壁纸';
                 $('.bg-title-right')[0].innerHTML='壁纸库';
                 oBgPicWrap.style.display='flex';
                 oBgLoadText.style.display='block';
                 oSetPicurlWrap.style.display='none';
+                openBgLibrary();
                 break;
             case 'bgset-upload':
                 setState='bg';
@@ -544,54 +535,145 @@ $('#console-title-box').click(function(){
 
     //壁纸设置部分--------------------------
 
-    //ajax加载壁纸--------------------------
     var nowBgpic=null;
     var oBgPicWrap=document.getElementById('bg-pic-wrap');
     var oSetPicurlWrap=document.getElementById('set-picurl-wrap');    
     var oBgLoadText=document.getElementById('bg-load-text');
+    var oBgCategoryBar=document.getElementById('bg-category-bar');
+    var bgCategories=[];
+    var bgCategory=savedBgCategory;
+    var bgOffset=0;
+    var bgNoMore=false;
+    var bgRequestId=0;
     $ajaxBgStatus=1;
+
+    function rotateBg(category){
+        var fd=new FormData();
+        if(category){
+            fd.append('category', category);
+        }
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/bg/randbg',true);
+        req.onreadystatechange=function(){
+            if(req.readyState==4 && req.status==200){
+                var data=JSON.parse(req.response);
+                if(data.success && data.bg_url){
+                    nowBgpic=data.bg_url;
+                    applyBg(data.bg_url);
+                }
+            }
+        };
+        req.send(fd);
+    }
+
+    function renderBgCategories(){
+        oBgCategoryBar.innerHTML='';
+        var hint=document.createElement('div');
+        hint.className='bg-category-hint';
+        hint.innerHTML=bgCategory ? '已选择此类目，下次打开页面会换一张' : '点选一个分类，之后每次打开页面会轮换一张';
+        for(var i=0;i<bgCategories.length;i++){
+            var item=bgCategories[i];
+            var chip=document.createElement('div');
+            chip.className='bg-category-chip'+(item.category==bgCategory?' active':'');
+            chip.innerHTML=item.category_note;
+            chip.dataset.category=item.category;
+            chip.onclick=function(){
+                chooseBgCategory(this.dataset.category);
+            };
+            oBgCategoryBar.appendChild(chip);
+        }
+        oBgCategoryBar.appendChild(hint);
+    }
+
+    function chooseBgCategory(category){
+        var changed=category!==bgCategory;
+        bgCategory=category;
+        localStorage.setItem(BG_CATEGORY_KEY, category);
+        renderBgCategories();
+        resetBgList();
+        if(changed){
+            rotateBg(category);
+        }
+    }
+
+    function resetBgList(){
+        oBgPicWrap.innerHTML='';
+        bgOffset=0;
+        bgNoMore=false;
+        ajaxBg();
+    }
+
+    function openBgLibrary(){
+        var preview=bgCategory;
+        if(bgCategories.length){
+            if(!preview){
+                preview=bgCategories[0].category;
+            }
+            bgCategory=localStorage.getItem(BG_CATEGORY_KEY)||'';
+            renderBgCategories();
+            resetBgList();
+            return;
+        }
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/bg/categories',true);
+        req.onreadystatechange=function(){
+            if(req.readyState==4 && req.status==200){
+                bgCategories=JSON.parse(req.response)||[];
+                if(!bgCategory && bgCategories.length){
+                    preview=bgCategories[0].category;
+                }
+                renderBgCategories();
+                resetBgList();
+            }
+        };
+        req.send();
+    }
+
     function ajaxBg(){
-                if($ajaxBgStatus==0){//节流
+                if($ajaxBgStatus==0 || bgNoMore){
+                    return false;
+                }
+                var previewCategory=bgCategory || (bgCategories[0] && bgCategories[0].category) || '';
+                if(!previewCategory){
                     return false;
                 }
                 $ajaxBgStatus=0;
-                //删除网站时Ajax至服务器
-                var fd = new FormData();		//文件
+                var requestId=++bgRequestId;
+                var fd = new FormData();
+                fd.append('category', previewCategory);
+                fd.append('offset', bgOffset);
                 var req=new XMLHttpRequest();
-                req.open('POST','/home/bg/ajaxbg',true);//异步
-                
-                
+                req.open('POST','/home/bg/ajaxbg',true);
                 req.onreadystatechange=function(){
                     if(req.readyState==4 && req.status==200){
+                        if(requestId!==bgRequestId){
+                            $ajaxBgStatus=1;
+                            return;
+                        }
                         $ajaxBgStatus=1;
                         var ajaxBgList=JSON.parse(req.response);
-                        var bgPicLength=oBgPicWrap.getElementsByTagName("div").length
-                        if(bgPicLength>=90){
-                            for(var i=0;i<15;i++){
-                                oBgPicWrap.removeChild(oBgPicWrap.childNodes[0])
-                            }                                
+                        if(!ajaxBgList.length){
+                            bgNoMore=true;
+                            oBgLoadText.innerHTML='';
+                            return;
                         }
+                        if(ajaxBgList.length<15){
+                            bgNoMore=true;
+                        }
+                        bgOffset+=ajaxBgList.length;
                         for(var i=0;i<ajaxBgList.length;i++){
-                            //在页面上写入新ajaxbg
                             var oNewBgDiv=document.createElement('div');                            
                             oNewBgDiv.className="bg-pic-box";
-
-                            var realPicPath=ajaxBgList[i];
-                            realPicPath=realPicPath.replace('url("',"");
-                            realPicPath=realPicPath.replace('")',"");
-                            realPicPath=realPicPath.replace('/400/',"/");
-
-                            // oNewBgDiv.innerHTML="<a href='/home/bg/download/?url="+realPicPath+"' class='set-pic-btn btn' target='_blank' title='下载图片'></a>";
+                            var realPicPath=ajaxBgList[i].replace('/400/',"/");
                             oNewBgDiv.innerHTML="<a download href='"+realPicPath+"' class='set-pic-btn btn' target='_blank' title='下载壁纸'></a>";
-                            oNewBgDiv.style.backgroundImage="url('"+ajaxBgList[i]+"')"	;	
+                            oNewBgDiv.style.backgroundImage="url('"+ajaxBgList[i]+"')";
                             oBgPicWrap.appendChild(oNewBgDiv); 
                             $('.bg-pic-box').css('height',$('.bg-pic-box')[0].offsetWidth/1920*1080+'px');
                         }
-                        // setTimeout("document.getElementById('bg-load-text').innerHTML=''",3000);
-                        clickBgPic();//点击壁纸事件
+                        oBgLoadText.innerHTML='';
+                        clickBgPic();
                     }
-                }
-               
+                };
                 req.send(fd);	
     }
     
