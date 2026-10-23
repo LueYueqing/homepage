@@ -14,6 +14,7 @@ export default function LegacyPage({
       {styles.map((href) => (
         <link key={href} rel="stylesheet" href={href} />
       ))}
+      {doc.headCss ? <style dangerouslySetInnerHTML={{ __html: doc.headCss }} /> : null}
       <div id={id} dangerouslySetInnerHTML={{ __html: doc.body }} />
     </>
   );
