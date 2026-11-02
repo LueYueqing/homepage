@@ -8,6 +8,7 @@ alwaysApply: true
 用户要求每次改完都推送，不要等单独通知。
 
 - 一项请求做完并通过检查后，提交相关改动并推送到当前分支已跟踪的远程。
+- 如果直连 github.com 超时，用当前 Windows 系统代理推送，不要把代理写进 git config。
 - 提交说明用中文，说明为什么改。
 - 不要提交密钥、`.env`、`_tmp_*`、`__pycache__` 这类临时文件。
 - 不要 force push，不要改 git config，不要跳过 hooks。
