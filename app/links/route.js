@@ -6,7 +6,7 @@ const DEST = {
   jd: 'https://www.jd.com/',
   vip: 'https://www.vip.com/',
   doubao: 'https://www.doubao.com/chat/',
-  qiewen: 'https://qiewenpaper.com/zh?utm_source=jianfast',
+  qiewen: 'https://qiewenpaper.com/zh?utm_source=whatab',
   douyin: 'https://www.douyin.com/',
 };
 

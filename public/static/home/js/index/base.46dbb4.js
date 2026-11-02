@@ -89,7 +89,7 @@ function bootHomePage(){
                 //     $('#welcome-btn-img').attr('src','/zhuye/images/chrome.svg');
                 //     $('#welcome-btn').attr('href','/pages/chromeext');            
                 //     $('.welcome-btn-text').html('添加Chrome官方扩展');
-                //     $('.welcome-btn-tips').html('打开浏览器默认显示简法主页');            
+                //     $('.welcome-btn-tips').html('打开浏览器默认显示哇塔主页');            
                 // }
                 $('#welcome-wrap').fadeIn(300);
         
@@ -104,7 +104,7 @@ function bootHomePage(){
 
 
 
-    // 原站防盗脚本会在非 jianfast 域名下打乱布局并死循环改写历史记录，
+    // 原站防盗脚本会在非原站域名下打乱布局并死循环改写历史记录，
     // 本地镜像（file:// 或 127.0.0.1）因此无法打开，这里已停用。 
 
 

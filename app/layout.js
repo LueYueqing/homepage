@@ -1,6 +1,6 @@
 export const metadata = {
-  title: '清新主页',
-  description: '简法主页是一个极简风格的主页网站，简洁清新，轻快大方。',
+  title: '哇塔主页',
+  description: '哇塔主页是一个极简风格的主页网站，简洁清新，轻快大方。',
   icons: { icon: '/favicon.ico' },
 };
 

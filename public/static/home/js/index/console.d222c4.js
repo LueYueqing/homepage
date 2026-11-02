@@ -1,12 +1,87 @@
+var BG_CATEGORY_KEY='jf_bg_category';
+var BG_READY_KEY='jf_bg_ready';
+function isBgCategory(value){
+    return /^[a-z0-9-]{1,32}$/.test(String(value||''));
+}
+function wallpaperInCategory(url, category){
+    return isBgCategory(category) && String(url||'').indexOf('/uploads/bg/'+category+'/')===0;
+}
+function readStoredCategory(){
+    var value='';
+    try{
+        value=localStorage.getItem(BG_CATEGORY_KEY)||'';
+    }catch(e){}
+    if(!isBgCategory(value) && typeof getCookie==='function'){
+        value=getCookie(BG_CATEGORY_KEY)||'';
+    }
+    value=String(value||'').trim();
+    return isBgCategory(value) ? value : '';
+}
+function writeStoredCategory(category){
+    if(!isBgCategory(category)){
+        return;
+    }
+    try{
+        localStorage.setItem(BG_CATEGORY_KEY, category);
+    }catch(e){}
+    var exp=new Date();
+    exp.setTime(exp.getTime()+365*24*60*60*1000);
+    document.cookie=BG_CATEGORY_KEY+'='+encodeURIComponent(category)+';path=/;expires='+exp.toUTCString();
+}
 function readReadyWallpaper(){
     try{
-        var data=JSON.parse(localStorage.getItem('jf_bg_ready')||'');
-        var category=localStorage.getItem('jf_bg_category')||'';
-        if(data && data.url && data.category===category){
+        var data=JSON.parse(localStorage.getItem(BG_READY_KEY)||'');
+        var category=readStoredCategory();
+        if(data && data.category===category && wallpaperInCategory(data.url, category)){
             return data;
         }
     }catch(e){}
     return null;
+}
+var NAV_CATEGORY_KEY='jf_nav_categories';
+function parseNavCategoryRaw(raw){
+    if(!raw){
+        return [];
+    }
+    try{
+        var parsed=JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    }catch(e){}
+    try{
+        var decoded=JSON.parse(decodeURIComponent(raw));
+        return Array.isArray(decoded) ? decoded : [];
+    }catch(e2){}
+    return [];
+}
+function readNavCategories(){
+    var raw='';
+    try{
+        raw=localStorage.getItem(NAV_CATEGORY_KEY)||'';
+    }catch(e){}
+    if(!raw && typeof getCookie==='function'){
+        raw=getCookie(NAV_CATEGORY_KEY)||'';
+    }
+    var seen={};
+    var safe=[];
+    var list=parseNavCategoryRaw(raw);
+    for(var i=0;i<list.length;i++){
+        var code=String(list[i]||'').trim();
+        if(!/^[a-z0-9-]{1,32}$/.test(code) || seen[code]){
+            continue;
+        }
+        seen[code]=1;
+        safe.push(code);
+    }
+    return safe;
+}
+function writeNavCategories(list){
+    var raw=JSON.stringify(list);
+    try{
+        localStorage.setItem(NAV_CATEGORY_KEY, raw);
+    }catch(e){}
+    var exp=new Date();
+    exp.setTime(exp.getTime()+365*24*60*60*1000);
+    document.cookie=NAV_CATEGORY_KEY+'='+encodeURIComponent(raw)+';path=/;expires='+exp.toUTCString();
 }
 function cssBackgroundUrl(value){
     var text=String(value||'');
@@ -27,7 +102,7 @@ function cssBackgroundUrl(value){
         bg.style.backgroundImage='url("'+ready.url+'")';
     };
     img.onerror=function(){
-        localStorage.removeItem('jf_bg_ready');
+        try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
     };
     img.src=ready.url;
 })();
@@ -37,38 +112,49 @@ function consolejs(uiData){
     //获取壁纸--------------------------
     // var oBgWrap=document.getElementById('bg-wrap');
     //打开页面时的壁纸。已选分类时，按最后使用时间轮换一张。
-    var BG_CATEGORY_KEY='jf_bg_category';
     function applyBg(url){
         uiData['bg_url']=url;
         $('#bg-wrap')[0].style.backgroundImage='url("'+url+'")';
         setCookie('loadingbg',url,365);
     }
-    var savedBgCategory=localStorage.getItem(BG_CATEGORY_KEY)||'';
-    var readyWallpaper=readReadyWallpaper();
-    if(savedBgCategory && readyWallpaper){
-        var readyImage=new Image();
-        readyImage.onload=function(){
-            applyBg(readyWallpaper.url);
-            markBgUsed(readyWallpaper.url);
-            preloadNextBg(savedBgCategory, readyWallpaper.url);
-        };
-        readyImage.onerror=function(){
-            localStorage.removeItem('jf_bg_ready');
-            applyBg(uiData['bg_url']);
+    var savedBgCategory=readStoredCategory();
+    var bgRotateSeq=0;
+    if(savedBgCategory){
+        writeStoredCategory(savedBgCategory);
+    }
+    if(!window.__jfBgBooted){
+        window.__jfBgBooted=true;
+        var readyWallpaper=readReadyWallpaper();
+        if(savedBgCategory && readyWallpaper){
+            var readyImage=new Image();
+            readyImage.onload=function(){
+                if(readStoredCategory()!==savedBgCategory){
+                    return;
+                }
+                applyBg(readyWallpaper.url);
+                markBgUsed(readyWallpaper.url);
+                preloadNextBg(savedBgCategory, readyWallpaper.url);
+            };
+            readyImage.onerror=function(){
+                try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
+                rotateBg(savedBgCategory, function(url){
+                    preloadNextBg(savedBgCategory, url);
+                });
+            };
+            readyImage.src=readyWallpaper.url;
+        }
+        else if(savedBgCategory){
+            var cookieBg=(typeof getCookie==='function') ? getCookie('loadingbg') : '';
+            if(wallpaperInCategory(cookieBg, savedBgCategory)){
+                applyBg(cookieBg);
+            }
             rotateBg(savedBgCategory, function(url){
                 preloadNextBg(savedBgCategory, url);
             });
-        };
-        readyImage.src=readyWallpaper.url;
-    }
-    else if(savedBgCategory){
-        applyBg(uiData['bg_url']);
-        rotateBg(savedBgCategory, function(url){
-            preloadNextBg(savedBgCategory, url);
-        });
-    }
-    else{
-        applyBg(uiData['bg_url']);
+        }
+        else{
+            applyBg(uiData['bg_url']);
+        }
     }
     // var oBg=document.createElement('iframe');
     // oBg.id="bg";
@@ -77,14 +163,17 @@ function consolejs(uiData){
     // oBg.src='/home/bg/show?type=show&picurl=';
 
     //切换随机壁纸图片--------------------------
-    $('.console-randbg-btn').click(function(){
+    $('.console-randbg-btn').off('click').on('click', function(){
         var head=this.querySelector('.pinwheel-head');
         if(head){
             head.classList.remove('is-spinning');
             void head.offsetWidth;
             head.classList.add('is-spinning');
         }
-        var category=localStorage.getItem(BG_CATEGORY_KEY)||'';
+        var category=readStoredCategory();
+        if(!category){
+            return;
+        }
         rotateBg(category, function(url){
             preloadNextBg(category, url);
         });
@@ -391,6 +480,7 @@ $('#console-title-box').click(function(){
         $('#console-bg-content').hide();  
         $('.bg-title-box').hide();
         $('#bg-category-bar').hide();
+        $('#nav-category-panel').hide();
         switch (showKind){
             case 'menu':
                 // alert('主目录')
@@ -398,7 +488,7 @@ $('#console-title-box').click(function(){
                 $('#console-title-box')[0].style.display='flex';
                 $('#save-box')[0].style.display='none';
                 $('.console-title-img')[0].src='/static/home/images/console/jianfast.svg';        
-                $('.console-title')[0].innerHTML='简法主页';
+                $('.console-title')[0].innerHTML='哇塔主页';
                 $('#console-menu')[0].style.display='flex';        
 
                 break;
@@ -419,6 +509,15 @@ $('#console-title-box').click(function(){
                 oBgLoadText.style.display='block';
                 oSetPicurlWrap.style.display='none';
                 openBgLibrary();
+                break;
+            case 'navset':
+                $('#console-title-box')[0].style.display='flex';
+                $('#save-box')[0].style.display='none';
+                $('.console-title-img')[0].src='/static/home/images/console/set1.svg';
+                $('.console-title')[0].innerHTML='网站分类';
+                $('#console-menu').hide();
+                $('#nav-category-panel').css('display','flex');
+                openNavCategories();
                 break;
             case 'bgset-upload':
                 setState='bg';
@@ -454,8 +553,12 @@ $('#console-title-box').click(function(){
 
 
     //背景设置按钮 点击
-    $(".console-bgset-btn").click(function(){
+    $(".console-bgset-btn").off('click').on('click', function(){
         showConsole('bgset-lib',0);
+    });
+
+    $(".console-navcat-btn").off('click').on('click', function(){
+        showConsole('navset',0);
     });
 
 
@@ -606,12 +709,20 @@ $('#console-title-box').click(function(){
     var oBgCategoryBar=document.getElementById('bg-category-bar');
     var bgCategories=[];
     var bgCategory=savedBgCategory;
+    var navCategoryList=[];
+    var navCategoriesSelected=readNavCategories();
+    var navViewCategory=navCategoriesSelected[0]||'';
+    var navSiteOffset=0;
+    var navSiteLoading=false;
+    var navSiteDone=false;
+    var navSiteRequestId=0;
     var bgOffset=0;
     var bgNoMore=false;
     var bgRequestId=0;
     $ajaxBgStatus=1;
 
     function rotateBg(category, done){
+        var requestId=++bgRotateSeq;
         var fd=new FormData();
         if(category){
             fd.append('category', category);
@@ -620,8 +731,11 @@ $('#console-title-box').click(function(){
         req.open('POST','/home/bg/randbg',true);
         req.onreadystatechange=function(){
             if(req.readyState==4 && req.status==200){
+                if(requestId!==bgRotateSeq){
+                    return;
+                }
                 var data=JSON.parse(req.response);
-                if(data.success && data.bg_url){
+                if(data.success && data.bg_url && (!category || (data.category===category && wallpaperInCategory(data.bg_url, category)))){
                     nowBgpic=data.bg_url;
                     applyBg(data.bg_url);
                     if(done){
@@ -657,12 +771,20 @@ $('#console-title-box').click(function(){
                 if(!data.success || !data.bg_url){
                     return;
                 }
+                if(category && (data.category!==category || !wallpaperInCategory(data.bg_url, category))){
+                    return;
+                }
                 var img=new Image();
                 img.onload=function(){
-                    localStorage.setItem('jf_bg_ready', JSON.stringify({
-                        category: data.category || category,
-                        url: data.bg_url
-                    }));
+                    if(readStoredCategory()!==category){
+                        return;
+                    }
+                    try{
+                        localStorage.setItem(BG_READY_KEY, JSON.stringify({
+                            category: category,
+                            url: data.bg_url
+                        }));
+                    }catch(e){}
                 };
                 img.src=data.bg_url;
             }
@@ -674,7 +796,13 @@ $('#console-title-box').click(function(){
         oBgCategoryBar.innerHTML='';
         var hint=document.createElement('div');
         hint.className='bg-category-hint';
-        hint.innerHTML=bgCategory ? '已选择此类目，下次打开页面会换一张' : '点选一个分类，之后每次打开页面会轮换一张';
+        var currentNote='';
+        for(var n=0;n<bgCategories.length;n++){
+            if(bgCategories[n].category==bgCategory){
+                currentNote=bgCategories[n].category_note;
+            }
+        }
+        hint.innerHTML=currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '点选一个分类，之后每次打开页面会轮换一张';
         for(var i=0;i<bgCategories.length;i++){
             var item=bgCategories[i];
             var chip=document.createElement('div');
@@ -690,12 +818,16 @@ $('#console-title-box').click(function(){
     }
 
     function chooseBgCategory(category){
+        if(!isBgCategory(category)){
+            return;
+        }
         var changed=category!==bgCategory;
         bgCategory=category;
-        localStorage.setItem(BG_CATEGORY_KEY, category);
+        writeStoredCategory(category);
         renderBgCategories();
         resetBgList();
         if(changed){
+            try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
             rotateBg(category, function(url){
                 preloadNextBg(category, url);
             });
@@ -706,16 +838,16 @@ $('#console-title-box').click(function(){
         oBgPicWrap.innerHTML='';
         bgOffset=0;
         bgNoMore=false;
+        if(!bgCategory){
+            oBgLoadText.innerHTML='请先点选一个分类';
+            return;
+        }
         ajaxBg();
     }
 
     function openBgLibrary(){
-        var preview=bgCategory;
+        bgCategory=readStoredCategory();
         if(bgCategories.length){
-            if(!preview){
-                preview=bgCategories[0].category;
-            }
-            bgCategory=localStorage.getItem(BG_CATEGORY_KEY)||'';
             renderBgCategories();
             resetBgList();
             return;
@@ -725,11 +857,170 @@ $('#console-title-box').click(function(){
         req.onreadystatechange=function(){
             if(req.readyState==4 && req.status==200){
                 bgCategories=JSON.parse(req.response)||[];
-                if(!bgCategory && bgCategories.length){
-                    preview=bgCategories[0].category;
-                }
+                bgCategory=readStoredCategory();
                 renderBgCategories();
                 resetBgList();
+            }
+        };
+        req.send();
+    }
+
+    function renderNavCategoryList(){
+        var list=document.getElementById('nav-category-list');
+        list.innerHTML='';
+        var items=[{category:'', category_note:'默认'}].concat(navCategoryList);
+        for(var i=0;i<items.length;i++){
+            var item=items[i];
+            var row=document.createElement('div');
+            row.className='nav-category-item'+(item.category===navViewCategory?' active':'');
+            row.textContent=item.category_note;
+            row.title=item.total ? item.category_note+' '+item.total+' 个' : item.category_note;
+            row.dataset.category=item.category;
+            row.onclick=function(){
+                chooseNavCategory(this.dataset.category||'');
+            };
+            list.appendChild(row);
+        }
+    }
+
+    function setNavSiteStatus(text){
+        document.getElementById('nav-site-status').textContent=text;
+    }
+
+    function resetNavSites(){
+        navSiteOffset=0;
+        navSiteDone=false;
+        navSiteLoading=false;
+        navSiteRequestId++;
+        document.getElementById('nav-site-list').innerHTML='';
+        document.getElementById('nav-site-pane').scrollTop=0;
+        if(!navViewCategory){
+            setNavSiteStatus('当前使用首页原来的网站。点左侧分类可查看并记住。');
+            return;
+        }
+        setNavSiteStatus('加载中……');
+        loadNavSites();
+    }
+
+    function appendNavSites(rows){
+        var list=document.getElementById('nav-site-list');
+        for(var i=0;i<rows.length;i++){
+            var item=rows[i];
+            var link=document.createElement('a');
+            link.className='nav-site-row';
+            link.target='_blank';
+            link.rel='nofollow noopener';
+            var url=String(item.url||'');
+            if(/^https?:\/\//i.test(url) || url.charAt(0)==='/'){
+                link.href=url;
+            }
+            var img=document.createElement('img');
+            img.alt='';
+            var icon=String(item.icon||'');
+            if(icon){
+                img.src=icon;
+                img.onerror=function(){
+                    this.style.visibility='hidden';
+                };
+            }
+            var name=document.createElement('span');
+            name.textContent=item.title||'';
+            link.appendChild(img);
+            link.appendChild(name);
+            list.appendChild(link);
+        }
+    }
+
+    function loadNavSites(){
+        if(!navViewCategory || navSiteLoading || navSiteDone){
+            return;
+        }
+        navSiteLoading=true;
+        var requestId=++navSiteRequestId;
+        var category=navViewCategory;
+        var fd=new FormData();
+        fd.append('category', category);
+        fd.append('offset', navSiteOffset);
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/nav/sites',true);
+        req.onreadystatechange=function(){
+            if(req.readyState!==4){
+                return;
+            }
+            if(requestId!==navSiteRequestId || category!==navViewCategory){
+                return;
+            }
+            navSiteLoading=false;
+            if(req.status!==200){
+                setNavSiteStatus('加载失败');
+                return;
+            }
+            var rows=JSON.parse(req.response)||[];
+            appendNavSites(rows);
+            navSiteOffset+=rows.length;
+            if(rows.length<30){
+                navSiteDone=true;
+                setNavSiteStatus(navSiteOffset ? '共 '+navSiteOffset+' 个' : '这个分类还没有网站');
+            }
+            else{
+                setNavSiteStatus('继续下滑加载更多');
+                var pane=document.getElementById('nav-site-pane');
+                if(pane.scrollHeight<=pane.clientHeight+40){
+                    loadNavSites();
+                }
+            }
+        };
+        req.send(fd);
+    }
+
+    function chooseNavCategory(category){
+        if(category && !/^[a-z0-9-]{1,32}$/.test(category)){
+            return;
+        }
+        if(category===navViewCategory && document.getElementById('nav-site-list').children.length){
+            return;
+        }
+        navViewCategory=category||'';
+        navCategoriesSelected=navViewCategory ? [navViewCategory] : [];
+        writeNavCategories(navCategoriesSelected);
+        renderNavCategoryList();
+        resetNavSites();
+        if(window.reloadNavSites){
+            window.reloadNavSites();
+        }
+    }
+
+    function bindNavSiteScroll(){
+        var pane=document.getElementById('nav-site-pane');
+        if(pane.dataset.bound){
+            return;
+        }
+        pane.dataset.bound='1';
+        pane.onscroll=function(){
+            if(pane.scrollHeight-pane.clientHeight-pane.scrollTop<=80){
+                loadNavSites();
+            }
+        };
+    }
+
+    function openNavCategories(){
+        navCategoriesSelected=readNavCategories();
+        navViewCategory=navCategoriesSelected[0]||'';
+        bindNavSiteScroll();
+        if(navCategoryList.length){
+            renderNavCategoryList();
+            resetNavSites();
+            return;
+        }
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/nav/categories',true);
+        req.onreadystatechange=function(){
+            if(req.readyState==4 && req.status==200){
+                navCategoryList=JSON.parse(req.response)||[];
+                navCategoriesSelected=readNavCategories();
+                navViewCategory=navCategoriesSelected[0]||'';
+                renderNavCategoryList();
+                resetNavSites();
             }
         };
         req.send();
@@ -739,7 +1030,7 @@ $('#console-title-box').click(function(){
                 if($ajaxBgStatus==0 || bgNoMore){
                     return false;
                 }
-                var previewCategory=bgCategory || (bgCategories[0] && bgCategories[0].category) || '';
+                var previewCategory=bgCategory;
                 if(!previewCategory){
                     return false;
                 }

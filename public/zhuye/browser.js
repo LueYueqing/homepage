@@ -1,7 +1,7 @@
 /**
  * 浏览器解析，浏览器、Node.js皆可
  * https://github.com/mumuy/browser
- * 简法鸣谢开源项目https://passer-by.com/browser/Browser.js
+ * 哇塔鸣谢开源项目https://passer-by.com/browser/Browser.js
  */
 
  ;(function (root, factory) {

@@ -45,7 +45,7 @@ window.__JF_FILES__ = {
     {
       "sort": 7,
       "title": "学术版Codex",
-      "url": "https://qiewenpaper.com/zh?utm_source=jianfast",
+      "url": "https://qiewenpaper.com/zh?utm_source=whatab",
       "icon": "static/home/images/siteimg/qiewen.png"
     },
     {

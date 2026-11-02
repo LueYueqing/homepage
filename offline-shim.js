@@ -1,5 +1,5 @@
 /*!
- * jianfast 本地镜像 —— 离线补丁 (offline-shim.js)
+ * 哇塔主页本地镜像 —— 离线补丁 (offline-shim.js)
  * 在页面脚本发起请求之前，用本地数据应答 /home/* 接口。
  * 数据优先读 _api/*.json（http 服务）；file:// 下改用 _api/payload.js。
  */
@@ -69,7 +69,7 @@
     if (key.indexOf('/home/bg/randbg') === 0) return { success: 1, bg_url: LOCAL_BG };
     if (key.indexOf('/home/ui/getDefaultUi') === 0) return uiData;
     if (key.indexOf('/home/engine/getnews') === 0) {
-      return ['搜你想搜的', '简法主页', '今日热搜'];
+      return ['搜你想搜的', '哇塔主页', '今日热搜'];
     }
     if (key.indexOf('/home/') === 0) {
       return { success: '本地预览模式，修改不会写回服务器' };

@@ -295,7 +295,7 @@ function searchjs(engineData){
             oEngineUrlInput.focus();            
             $("#engineConfirm")[0].onclick=function(){
                 var re=/[^\s]+\.[^\s]+/i;
-                if(!re.test(oEngineUrlInput.value)||oEngineUrlInput.value.search('简法')==-1&&oEngineUrlInput.value.search(/jianfast/i)==-1){
+                if(!re.test(oEngineUrlInput.value)||oEngineUrlInput.value.search('哇塔')==-1&&oEngineUrlInput.value.search(/whatab/i)==-1){
                     showmsg("获取图标失败！未输入网址或格式不正确");	
                     return false;
                 }
@@ -365,7 +365,7 @@ function searchjs(engineData){
 				$(".engine-edit")[i].onclick=function(ev){				
 					var oEvent=ev||event;
 					oEvent.preventDefault();
-					oEngineUrlInput.value=this.parentNode.dataset.engineStart+'jianfast'+this.parentNode.dataset.engineEnd;
+					oEngineUrlInput.value=this.parentNode.dataset.engineStart+'whatab'+this.parentNode.dataset.engineEnd;
 					oEngineNameInput.value=this.parentNode.children[1].innerHTML;
 					
 					oEngineImg.src=this.parentNode.children[0].getAttribute("src");
@@ -376,7 +376,7 @@ function searchjs(engineData){
 					oEngineUrlInput.focus();
                     var sort=this.dataset.sort;
 					$("#engineConfirm")[0].onclick=function(){	                        		
-						if(oEngineUrlInput.value.search(/\./)==-1||oEngineUrlInput.value.search('简法')==-1&&oEngineUrlInput.value.search(/jianfast/i)==-1){
+						if(oEngineUrlInput.value.search(/\./)==-1||oEngineUrlInput.value.search('哇塔')==-1&&oEngineUrlInput.value.search(/whatab/i)==-1){
 							showmsg("保存失败！未输入网址或格式不正确");	
 							return false;
 						}
@@ -633,7 +633,7 @@ function searchjs(engineData){
 	//抓取名称和图标--------------------------
 	$("#engineZhuaqu")[0].onclick=function(){
 		var re=/[^\s]+\.[^\s]+/i;
-		if(!re.test(oEngineUrlInput.value)||oEngineUrlInput.value.search('简法')==-1&&oEngineUrlInput.value.search(/jianfast/i)==-1){
+		if(!re.test(oEngineUrlInput.value)||oEngineUrlInput.value.search('哇塔')==-1&&oEngineUrlInput.value.search(/whatab/i)==-1){
 			showmsg("获取图标失败！未输入网址或格式不正确");	
 			return false;
 		}

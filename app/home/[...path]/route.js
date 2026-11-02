@@ -18,6 +18,44 @@ const CATEGORY_ORDER = [
   'street',
 ];
 
+const NAV_CATEGORY_ORDER = [
+  'shopping',
+  'video',
+  'music',
+  'news',
+  'social',
+  'app',
+  'games',
+  'life',
+  'read',
+  'education',
+  'tech',
+  'ai',
+  'photos',
+  'sports',
+  'finance',
+  'others',
+];
+
+const NAV_CATEGORY_NOTES = {
+  shopping: '购物',
+  video: '视频',
+  music: '音乐',
+  news: '资讯',
+  social: '社区',
+  app: '应用',
+  games: '游戏',
+  life: '生活',
+  read: '阅读',
+  education: '教育',
+  tech: '技术',
+  ai: '人工智能',
+  photos: '图片',
+  sports: '运动',
+  finance: '金融',
+  others: '其他',
+};
+
 function readJson(name) {
   const file = path.join(process.cwd(), '_api', name);
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -31,27 +69,84 @@ function payload() {
   };
 }
 
-async function listNavSites(userId = 0) {
+function readCategoryList(value) {
+  const source = Array.isArray(value) ? value : String(value || '').split(',');
+  if (!Array.isArray(value) && value) {
+    try {
+      const parsed = JSON.parse(String(value));
+      if (Array.isArray(parsed)) return readCategoryList(parsed);
+    } catch {
+      /* 逗号分隔的分类代号 */
+    }
+  }
+  return [...new Set(source.map((item) => safeCategory(item)).filter(Boolean))];
+}
+
+function navCategoryNote(category, note) {
+  const text = String(note || '');
+  if (/[\u4e00-\u9fff]/.test(text)) return text;
+  return NAV_CATEGORY_NOTES[category] || text || category;
+}
+
+async function listNavSites(userId = 0, categories = []) {
   const pool = getPool();
-  const [rows] = await pool.query(
-    `SELECT title, url, logo, category, category_note,
-            DATE_FORMAT(link_updated_at, '%Y-%m-%d %H:%i:%s') AS link_updated_at,
-            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
-     FROM nav_sites
-     WHERE (user_id = ? OR user_id IS NULL) AND is_enabled = 1
-     ORDER BY sort_order ASC, id ASC`,
-    [userId],
-  );
+  const selected = readCategoryList(categories);
+  const sql = selected.length
+    ? `SELECT title, keyword, url, description, logo, icon_url, img_name,
+              category, category_note, source, country, popularity, is_pinned,
+              external_uid,
+              DATE_FORMAT(link_updated_at, '%Y-%m-%d %H:%i:%s') AS link_updated_at,
+              DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+       FROM nav_sites
+       WHERE (user_id = ? OR user_id IS NULL)
+         AND JSON_OVERLAPS(category, CAST(? AS JSON))
+       ORDER BY popularity DESC, sort_order ASC, id ASC
+       LIMIT 18`
+    : `SELECT title, keyword, url, description, logo, icon_url, img_name,
+              category, category_note, source, country, popularity, is_pinned,
+              external_uid,
+              DATE_FORMAT(link_updated_at, '%Y-%m-%d %H:%i:%s') AS link_updated_at,
+              DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+       FROM nav_sites
+       WHERE (user_id = ? OR user_id IS NULL) AND is_enabled = 1
+       ORDER BY sort_order ASC, id ASC
+       LIMIT 18`;
+  const params = selected.length ? [userId, JSON.stringify(selected)] : [userId];
+  const [rows] = await pool.query(sql, params);
   return rows.map((row, index) => ({
     sort: index,
     title: row.title,
+    keyword: row.keyword,
     url: row.url,
+    description: row.description,
     icon: row.logo,
-    category: row.category,
-    category_note: row.category_note,
+    icon_url: row.icon_url,
+    img_name: row.img_name,
+    category: asStringList(row.category),
+    category_note: asStringList(row.category_note),
+    source: row.source,
+    country: row.country,
+    popularity: Number(row.popularity || 0),
+    is_pinned: Number(row.is_pinned || 0),
+    external_uid: row.external_uid,
     link_updated_at: row.link_updated_at,
     updated_at: row.updated_at,
   }));
+}
+
+function asStringList(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item)).filter(Boolean);
+  if (value == null || value === '') return [];
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return asStringList(parsed);
+    } catch {
+      return [value];
+    }
+    return [value];
+  }
+  return [];
 }
 
 function safeCategory(value) {
@@ -82,6 +177,59 @@ async function readFields(request) {
   } catch {
     return {};
   }
+}
+
+async function listNavCategorySites(category, offset, limit = 30) {
+  const safe = safeCategory(category);
+  const start = Math.max(0, Number.parseInt(offset, 10) || 0);
+  const size = Math.min(60, Math.max(1, Number.parseInt(limit, 10) || 30));
+  if (!safe) return [];
+  const pool = getPool();
+  const [rows] = await pool.query(
+    `SELECT title, url, logo, icon_url
+     FROM nav_sites
+     WHERE (user_id = 0 OR user_id IS NULL)
+       AND JSON_CONTAINS(category, JSON_QUOTE(?))
+     ORDER BY popularity DESC, id ASC
+     LIMIT ? OFFSET ?`,
+    [safe, size, start],
+  );
+  return rows.map((row) => ({
+    title: row.title,
+    url: row.url,
+    icon: row.logo || row.icon_url || '',
+  }));
+}
+
+async function listNavCategories() {
+  const pool = getPool();
+  const [rows] = await pool.query(
+    `SELECT cat.category AS category,
+            MAX(note.category_note) AS category_note,
+            COUNT(DISTINCT n.id) AS total
+     FROM nav_sites n
+     JOIN JSON_TABLE(n.category, '$[*]' COLUMNS (
+       ord FOR ORDINALITY,
+       category VARCHAR(64) PATH '$'
+     )) cat
+     JOIN JSON_TABLE(n.category_note, '$[*]' COLUMNS (
+       ord FOR ORDINALITY,
+       category_note VARCHAR(64) PATH '$'
+     )) note ON note.ord = cat.ord
+     GROUP BY cat.category`,
+  );
+  return rows
+    .map((row) => ({
+      category: safeCategory(row.category),
+      category_note: navCategoryNote(safeCategory(row.category), row.category_note),
+      total: Number(row.total),
+    }))
+    .filter((row) => row.category)
+    .sort((a, b) => {
+      const left = NAV_CATEGORY_ORDER.indexOf(a.category);
+      const right = NAV_CATEGORY_ORDER.indexOf(b.category);
+      return (left < 0 ? 99 : left) - (right < 0 ? 99 : right);
+    });
 }
 
 async function listCategories() {
@@ -193,14 +341,26 @@ async function handle(request, context) {
   const data = payload();
 
   if (key === '/home/user/clogin' || key === '/home/user/login') {
-    data.siteData = await listNavSites(0);
+    const fields = await readFields(request);
+    data.siteData = await listNavSites(0, readCategoryList(fields.categories));
     return NextResponse.json(data);
   }
   if (key === '/home/site/getsite') {
+    const fields = await readFields(request);
     return NextResponse.json({
-      siteData: await listNavSites(0),
+      siteData: await listNavSites(0, readCategoryList(fields.categories)),
       uiData: data.uiData,
     });
+  }
+  if (key === '/home/nav/categories') {
+    return NextResponse.json(await listNavCategories());
+  }
+  if (key === '/home/nav/sites') {
+    const fields = await readFields(request);
+    const category = safeCategory(fields.category);
+    const offset = Math.max(0, Number.parseInt(fields.offset, 10) || 0);
+    if (!category) return NextResponse.json([]);
+    return NextResponse.json(await listNavCategorySites(category, offset, 30));
   }
   if (key === '/home/bg/categories') {
     return NextResponse.json(await listCategories());
@@ -250,7 +410,7 @@ async function handle(request, context) {
     return NextResponse.json(data.uiData);
   }
   if (key === '/home/engine/getnews') {
-    return NextResponse.json(['搜你想搜的', '简法主页', '今日热搜']);
+    return NextResponse.json(['搜你想搜的', '哇塔主页', '今日热搜']);
   }
   if (key.startsWith('/home/')) {
     return NextResponse.json({ success: '本地预览模式，修改不会写回服务器' });

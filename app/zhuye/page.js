@@ -1,7 +1,7 @@
 import LegacyPage from '../../components/LegacyPage';
 import OrderedScripts from '../../components/OrderedScripts';
 
-export const metadata = { title: '设置主页-简法主页' };
+export const metadata = { title: '设置主页-哇塔主页' };
 
 export default function ZhuyePage() {
   return (

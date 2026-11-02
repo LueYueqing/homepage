@@ -27,21 +27,30 @@ function site(){
     var writeSiteMenu=null;
     var engineData=null;
     var uidata=null;
-    function clogin(){
+    var navRequestId=0;
+    function clogin(iconsOnly){
+            var requestId=++navRequestId;
             var bodyWidth=document.body.offsetWidth;
             var fd = new FormData();		//文件
             var req=new XMLHttpRequest();
             req.open('post','/home/user/clogin',true);//异步
-            fd.append("bodyWidth",bodyWidth);            
+            fd.append("bodyWidth",bodyWidth);
+            var navCategories=(typeof readNavCategories==='function') ? readNavCategories() : [];
+            if(navCategories.length){
+                fd.append('categories', JSON.stringify(navCategories));
+            }
             req.onreadystatechange=function(){
                 if(req.readyState==4 && req.status==200){
+                    if(requestId!==navRequestId){
+                        return;
+                    }
                     var ajaxData=JSON.parse(req.response);
                     // console.log(ajaxData);
                     userData=ajaxData['userData'];
                     writeSiteMenu=ajaxData['siteData'];
                     engineData=ajaxData['engineData'];
                     uiData=ajaxData['uiData'];
-                    toWriteSite();
+                    toWriteSite(!!iconsOnly);
                     if(userData['user_type']==0){//未登录，type为0
                         $('#user-box')[0].style.cursor='pointer';
                         $("#beian-wrap").fadeIn(300);//显示备案                        
@@ -60,7 +69,10 @@ function site(){
             }
             req.send(fd);
     }
-    clogin();
+    clogin(false);
+    window.reloadNavSites=function(){
+        clogin(true);
+    };
 
     //退出登录--------------------------
     var oSignOutBtn=document.getElementById('signout-btn')
@@ -119,7 +131,7 @@ function site(){
 
 
     //getsite获取的数据写入前端--------------------------    
-    function toWriteSite(){
+    function toWriteSite(iconsOnly){
 
         if(!writeSiteMenu){
             return false;
@@ -146,18 +158,12 @@ function site(){
                 }
             }		
         }
-        consolejs(uiData);
-        searchjs(engineData);
-        //显示main-wrap
-        // if(writeSiteMenu.length>18){
-        //     $('#search-wrap')[0].style.marginBottom='140px';
-        // }
-        // if(writeSiteMenu.length>36){
-        //     $('#search-wrap')[0].style.marginBottom='100px';
-        // }
-
+        if(!iconsOnly){
+            consolejs(uiData);
+            searchjs(engineData);
             $('#search-wrap')[0].style.display='flex';
             $('#search')[0].focus();
+        }
    
         
     };

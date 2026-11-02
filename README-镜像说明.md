@@ -1,7 +1,7 @@
-# 简法主页（jianfast.com）本地镜像
+# 哇塔主页（whatab.com）本地镜像
 
 **采集时间**：2026-10-22
-**源站**：https://www.jianfast.com/ ｜ robots.txt 允许全站抓取（`User-agent: * / Disallow:` 空）
+**源站**：https://whatab.com/ ｜ robots.txt 允许全站抓取（`User-agent: * / Disallow:` 空）
 
 ---
 
@@ -56,7 +56,7 @@ homepage/
 
 ## 三、这个站是怎么工作的（重要）
 
-简法主页是**登录态动态渲染**的站点，HTML 里**没有导航链接和搜索引擎图标**，
+哇塔主页是**登录态动态渲染**的站点，HTML 里**没有导航链接和搜索引擎图标**，
 它们在页面加载后由 JS 请求后端接口再插入 DOM：
 
 ```

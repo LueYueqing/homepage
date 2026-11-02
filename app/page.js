@@ -20,8 +20,8 @@ const HOME_SCRIPTS = [
 ];
 
 export const metadata = {
-  title: '清新主页',
-  keywords: '简法,简法主页,简法导航,网址导航',
+  title: '哇塔主页',
+  keywords: '哇塔,哇塔主页,哇塔导航,网址导航',
 };
 
 export default function HomePage() {
