@@ -2,6 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { getPool } from '../../../lib/db';
+import {
+  destroySession,
+  findUserBySession,
+  readSessionToken,
+  saveUserSettings,
+} from '../../../lib/users';
 
 export const dynamic = 'force-dynamic';
 
@@ -334,16 +340,79 @@ async function takeNextWallpaper(category) {
   }
 }
 
+async function currentUser(request) {
+  try {
+    return await findUserBySession(readSessionToken(request));
+  } catch {
+    return null;
+  }
+}
+
+function userPayload(base, user) {
+  const data = {
+    ...base,
+    uiData: { ...base.uiData },
+  };
+  if (!user) return data;
+  data.uiData = { ...data.uiData, ...user.ui_settings };
+  if (user.bg_url) data.uiData.bg_url = user.bg_url;
+  data.userData = {
+    user_type: 1,
+    user_name: user.user_name,
+    user_headimg: user.user_headimg,
+    bg_category: user.bg_category,
+    nav_categories: user.nav_categories,
+  };
+  return data;
+}
+
 async function handle(request, context) {
   const params = context?.params ? await context.params : {};
   const segments = params.path || params.slug || [];
   const key = '/home/' + (Array.isArray(segments) ? segments.join('/') : String(segments));
-  const data = payload();
+  const user = await currentUser(request);
+  const data = userPayload(payload(), user);
 
   if (key === '/home/user/clogin' || key === '/home/user/login') {
     const fields = await readFields(request);
-    data.siteData = await listNavSites(0, readCategoryList(fields.categories));
+    const requested = readCategoryList(fields.categories);
+    const categories = requested.length ? requested : (user?.nav_categories || []);
+    data.siteData = await listNavSites(0, categories);
     return NextResponse.json(data);
+  }
+  if (key === '/home/user/logout') {
+    await destroySession(readSessionToken(request)).catch(() => {});
+    const response = NextResponse.json({ success: 1 });
+    response.cookies.set('wa_session', '', { path: '/', maxAge: 0 });
+    return response;
+  }
+  if (key === '/home/user/prefs') {
+    if (!user) return NextResponse.json({ success: 0 });
+    try {
+      await saveUserSettings(user.id, await readFields(request));
+    } catch {
+      return NextResponse.json({ error: '保存失败，请稍后再试' });
+    }
+    return NextResponse.json({ success: 1 });
+  }
+  if (key === '/home/bg/save') {
+    if (!user) return NextResponse.json({ success: '登录后可同步壁纸' });
+    try {
+      const saved = await saveUserSettings(user.id, await readFields(request));
+      if (!saved) return NextResponse.json({ error: '壁纸地址无效' });
+    } catch {
+      return NextResponse.json({ error: '壁纸保存失败' });
+    }
+    return NextResponse.json({ success: '壁纸保存成功' });
+  }
+  if (key === '/home/ui/saveui') {
+    if (!user) return NextResponse.json({ success: '已在本机生效，登录后可云同步' });
+    try {
+      await saveUserSettings(user.id, await readFields(request));
+    } catch {
+      return NextResponse.json({ error: '保存失败，请稍后再试' });
+    }
+    return NextResponse.json({ success: '保存成功' });
   }
   if (key === '/home/site/getsite') {
     const fields = await readFields(request);

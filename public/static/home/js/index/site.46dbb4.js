@@ -50,6 +50,15 @@ function site(){
                     writeSiteMenu=ajaxData['siteData'];
                     engineData=ajaxData['engineData'];
                     uiData=ajaxData['uiData'];
+                    window.__jfUser=userData||{user_type:0};
+                    if(userData && userData['user_type']==1){
+                        if(userData['bg_category'] && typeof writeStoredCategory==='function'){
+                            writeStoredCategory(userData['bg_category']);
+                        }
+                        if(Array.isArray(userData['nav_categories']) && typeof writeNavCategories==='function'){
+                            writeNavCategories(userData['nav_categories']);
+                        }
+                    }
                     toWriteSite(!!iconsOnly);
                     if(userData['user_type']==0){//未登录，type为0
                         $('#user-box')[0].style.cursor='pointer';
@@ -57,7 +66,8 @@ function site(){
                         return false;
                     }
                     else{
-                        $('.user-head')[0].style.backgroundImage="url('"+userData['user_headimg'].replace('http://',"https://")+"')";
+                        var headImg=String(userData['user_headimg']||'/static/home/images/console/userhead.svg');
+                        $('.user-head')[0].style.backgroundImage="url('"+headImg.replace('http://',"https://")+"')";
                         $('.user-name')[0].innerHTML=userData['user_name'];
                         $('#signout-btn')[0].style.display='inline-block';
                         $('.console-menu-btn').attr("data-usertype","1");

@@ -6,6 +6,9 @@ function isBgCategory(value){
 function wallpaperInCategory(url, category){
     return isBgCategory(category) && String(url||'').indexOf('/uploads/bg/'+category+'/')===0;
 }
+function isWallpaperPath(url){
+    return /^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(String(url||'').split('?')[0]);
+}
 function readStoredCategory(){
     var value='';
     try{
@@ -32,7 +35,16 @@ function readReadyWallpaper(){
     try{
         var data=JSON.parse(localStorage.getItem(BG_READY_KEY)||'');
         var category=readStoredCategory();
-        if(data && data.category===category && wallpaperInCategory(data.url, category)){
+        if(!data || !data.url){
+            return null;
+        }
+        if(category){
+            if(data.category===category && wallpaperInCategory(data.url, category)){
+                return data;
+            }
+            return null;
+        }
+        if(!data.category && isWallpaperPath(data.url)){
             return data;
         }
     }catch(e){}
@@ -74,6 +86,17 @@ function readNavCategories(){
     }
     return safe;
 }
+function saveUserPref(fields){
+    var fd=new FormData();
+    for(var key in fields){
+        if(Object.prototype.hasOwnProperty.call(fields, key)){
+            fd.append(key, fields[key]);
+        }
+    }
+    var req=new XMLHttpRequest();
+    req.open('POST','/home/user/prefs',true);
+    req.send(fd);
+}
 function writeNavCategories(list){
     var raw=JSON.stringify(list);
     try{
@@ -111,7 +134,7 @@ function consolejs(uiData){
 
     //获取壁纸--------------------------
     // var oBgWrap=document.getElementById('bg-wrap');
-    //打开页面时的壁纸。已选分类时，按最后使用时间轮换一张。
+    //打开页面时的壁纸。未选分类时从全部壁纸里轮换，已选分类时只在该分类里轮换。
     function applyBg(url){
         uiData['bg_url']=url;
         $('#bg-wrap')[0].style.backgroundImage='url("'+url+'")';
@@ -152,8 +175,35 @@ function consolejs(uiData){
                 preloadNextBg(savedBgCategory, url);
             });
         }
-        else{
+        else if(window.__jfUser && window.__jfUser.user_type==1 && isWallpaperPath(uiData['bg_url'])){
             applyBg(uiData['bg_url']);
+        }
+        else if(readyWallpaper){
+            var openImage=new Image();
+            openImage.onload=function(){
+                if(readStoredCategory()){
+                    return;
+                }
+                applyBg(readyWallpaper.url);
+                markBgUsed(readyWallpaper.url);
+                preloadNextBg('', readyWallpaper.url);
+            };
+            openImage.onerror=function(){
+                try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
+                rotateBg('', function(url){
+                    preloadNextBg('', url);
+                });
+            };
+            openImage.src=readyWallpaper.url;
+        }
+        else{
+            var savedBg=(typeof getCookie==='function') ? getCookie('loadingbg') : '';
+            if(isWallpaperPath(savedBg)){
+                applyBg(savedBg);
+            }
+            rotateBg('', function(url){
+                preloadNextBg('', url);
+            });
         }
     }
     // var oBg=document.createElement('iframe');
@@ -164,16 +214,7 @@ function consolejs(uiData){
 
     //切换随机壁纸图片--------------------------
     $('.console-randbg-btn').off('click').on('click', function(){
-        var head=this.querySelector('.pinwheel-head');
-        if(head){
-            head.classList.remove('is-spinning');
-            void head.offsetWidth;
-            head.classList.add('is-spinning');
-        }
         var category=readStoredCategory();
-        if(!category){
-            return;
-        }
         rotateBg(category, function(url){
             preloadNextBg(category, url);
         });
@@ -802,7 +843,7 @@ $('#console-title-box').click(function(){
                 currentNote=bgCategories[n].category_note;
             }
         }
-        hint.innerHTML=currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '点选一个分类，之后每次打开页面会轮换一张';
+        hint.innerHTML=currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张';
         for(var i=0;i<bgCategories.length;i++){
             var item=bgCategories[i];
             var chip=document.createElement('div');
@@ -824,6 +865,7 @@ $('#console-title-box').click(function(){
         var changed=category!==bgCategory;
         bgCategory=category;
         writeStoredCategory(category);
+        saveUserPref({bg_category: category});
         renderBgCategories();
         resetBgList();
         if(changed){
@@ -983,6 +1025,7 @@ $('#console-title-box').click(function(){
         navViewCategory=category||'';
         navCategoriesSelected=navViewCategory ? [navViewCategory] : [];
         writeNavCategories(navCategoriesSelected);
+        saveUserPref({nav_categories: JSON.stringify(navCategoriesSelected)});
         renderNavCategoryList();
         resetNavSites();
         if(window.reloadNavSites){
