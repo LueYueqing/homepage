@@ -38,6 +38,21 @@ export default function HomePage() {
           align-items: center;
           position: relative;
         }
+        #site-legal {
+          position: fixed;
+          z-index: 30;
+          left: 50%;
+          bottom: 16px;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 16px;
+          padding: 6px 14px;
+          border-radius: 100px;
+          background: rgba(0,0,0,0.28);
+          font-size: 12px;
+          line-height: 1.4;
+        }
+        #site-legal a { color: #fff; text-decoration: none; white-space: nowrap; }
       `}</style>
       <script
         type="application/ld+json"

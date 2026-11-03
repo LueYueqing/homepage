@@ -6,6 +6,8 @@ const PAGES = [
   { path: '/about', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/zhinan', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.5, changeFrequency: 'yearly' },
+  { path: '/terms', priority: 0.4, changeFrequency: 'yearly' },
+  { path: '/privacy', priority: 0.4, changeFrequency: 'yearly' },
   { path: '/contract', priority: 0.4, changeFrequency: 'yearly' },
 ];
 

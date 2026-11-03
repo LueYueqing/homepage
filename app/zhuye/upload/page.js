@@ -100,7 +100,8 @@ export default function UploadPage() {
             <a href="/zhinan">使用指南</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="/zhuye">设为主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="/zhinan">常见问题解答</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/contract">服务条款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/terms">服务条款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/privacy">隐私政策</a>&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
           <div id="bottom-text-box">
             <div id="botCopyright">©2026 whatab.com&nbsp;&nbsp;<a id="bottom-beian" href="http://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2021102007号-15</a>&nbsp;&nbsp;东莞市梦霓科技有限公司</div>

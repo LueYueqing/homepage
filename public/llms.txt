@@ -11,4 +11,6 @@
 - [关于我们](https://whatab.com/about): 产品介绍与运营主体
 - [使用指南](https://whatab.com/zhinan): 壁纸、界面、网站收藏和搜索引擎的设置方法
 - [联系我们](https://whatab.com/contact): 问题反馈与合作，邮箱 87371@qq.com
+- [服务条款](https://whatab.com/terms): 使用哇塔主页的服务约定
+- [隐私政策](https://whatab.com/privacy): 个人信息的收集、使用和联系方式
 - [用户服务协议](https://whatab.com/contract): 使用条款，以及个人信息与争议管辖约定
