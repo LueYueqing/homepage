@@ -810,16 +810,16 @@ color:#cccccc;
     color:#2c7bf6;
     background:#f3f7ff;
 }
-.bg-category-upload{
-    height:22px;
-    line-height:22px;
-    font-size:12px;
-    padding:0 4px;
-    color:#2c7bf6;
-    text-decoration:none;
+.bg-upload-panel{
+    width:100%;
+    padding:18px 8px;
+    font-size:13px;
+    line-height:1.8;
+    text-align:center;
+    color:#666666;
 }
-.bg-category-upload:hover{
-    text-decoration:underline;
+.bg-upload-panel a{
+    color:#2c7bf6;
 }
 .bg-category-hint{
     width:100%;

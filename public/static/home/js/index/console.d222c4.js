@@ -761,6 +761,7 @@ $('#console-title-box').click(function(){
     var bgOffset=0;
     var bgNoMore=false;
     var bgRequestId=0;
+    var bgUploadView=false;
     $ajaxBgStatus=1;
 
     function rotateBg(category, done, notify){
@@ -851,28 +852,39 @@ $('#console-title-box').click(function(){
                 currentNote=bgCategories[n].category_note;
             }
         }
-        hint.innerHTML=bgCategory==='custom'
-            ? '已选中「自选」，将轮换你上传的背景图。<a href="/zhuye/upload">上传背景图</a>'
-            : (currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张');
+        hint.innerHTML=bgUploadView
+            ? '在这里前往上传页面，图片会进入「自选」'
+            : (bgCategory==='custom'
+                ? '已选中「自选」，将轮换你上传的背景图'
+                : (currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张'));
         for(var i=0;i<bgCategories.length;i++){
             var item=bgCategories[i];
             var chip=document.createElement('div');
-            chip.className='bg-category-chip'+(item.category==bgCategory?' active':'');
+            chip.className='bg-category-chip'+(!bgUploadView && item.category==bgCategory?' active':'');
             chip.innerHTML=item.category_note;
             chip.dataset.category=item.category;
             chip.onclick=function(){
                 chooseBgCategory(this.dataset.category);
             };
             oBgCategoryBar.appendChild(chip);
-            if(item.category==='custom'){
-                var upload=document.createElement('a');
-                upload.className='bg-category-upload';
-                upload.href='/zhuye/upload';
-                upload.textContent='上传背景图';
-                oBgCategoryBar.appendChild(upload);
-            }
         }
+        var uploadChip=document.createElement('div');
+        uploadChip.className='bg-category-chip'+(bgUploadView?' active':'');
+        uploadChip.textContent='上传';
+        uploadChip.onclick=showUploadPanel;
+        oBgCategoryBar.appendChild(uploadChip);
         oBgCategoryBar.appendChild(hint);
+    }
+
+    function showUploadPanel(){
+        bgUploadView=true;
+        bgRequestId++;
+        $ajaxBgStatus=1;
+        renderBgCategories();
+        oBgPicWrap.innerHTML='<div class="bg-upload-panel">每个账号最多 20 张。上传后，在「自选」里轮换这些图片。<a href="/zhuye/upload">前往上传背景图</a></div>';
+        bgOffset=0;
+        bgNoMore=true;
+        oBgLoadText.innerHTML='';
     }
 
     function chooseBgCategory(category){
@@ -883,6 +895,7 @@ $('#console-title-box').click(function(){
             showLoginBtn();
             return;
         }
+        bgUploadView=false;
         var changed=category!==bgCategory;
         bgCategory=category;
         writeStoredCategory(category);
@@ -909,6 +922,7 @@ $('#console-title-box').click(function(){
     }
 
     function openBgLibrary(){
+        bgUploadView=false;
         bgCategory=readStoredCategory();
         if(bgCategories.length){
             renderBgCategories();
@@ -1117,7 +1131,7 @@ $('#console-title-box').click(function(){
                             bgNoMore=true;
                             if(previewCategory==='custom' && bgOffset===0){
                                 oBgLoadText.innerHTML=(window.__jfUser && Number(window.__jfUser.user_type)===1)
-                                    ? '还没有自选背景，请先<a href="/zhuye/upload">上传背景图</a>'
+                                    ? '还没有自选背景，请点上方的「上传」'
                                     : '登录后才能使用自选背景';
                             }else{
                                 oBgLoadText.innerHTML='';
