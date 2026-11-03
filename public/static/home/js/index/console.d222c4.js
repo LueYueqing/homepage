@@ -881,7 +881,7 @@ $('#console-title-box').click(function(){
         bgRequestId++;
         $ajaxBgStatus=1;
         renderBgCategories();
-        oBgPicWrap.innerHTML='<div class="bg-upload-panel">普通用户最多 20 张。会员一年 5 元，最多 100 张。<a href="/zhuye/upload">前往上传背景图</a></div>';
+        oBgPicWrap.innerHTML='<div class="bg-upload-panel">普通用户最多 20 张。会员一年 5 元，最多 100 张。<a href="/set-homepage/upload">前往上传背景图</a></div>';
         bgOffset=0;
         bgNoMore=true;
         oBgLoadText.innerHTML='';

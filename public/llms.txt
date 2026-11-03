@@ -7,9 +7,9 @@
 ## 页面
 
 - [首页](https://whatab.com/): 搜索、常用网站和壁纸主页
-- [设为浏览器主页](https://whatab.com/zhuye): 把哇塔主页设为 Chrome、Edge 等浏览器的启动页
+- [设为浏览器主页](https://whatab.com/set-homepage): 把哇塔主页设为 Chrome、Edge 等浏览器的启动页
 - [关于我们](https://whatab.com/about): 产品介绍与运营主体
-- [使用指南](https://whatab.com/zhinan): 壁纸、界面、网站收藏和搜索引擎的设置方法
+- [使用指南](https://whatab.com/guide): 壁纸、界面、网站收藏和搜索引擎的设置方法
 - [联系我们](https://whatab.com/contact): 问题反馈与合作，邮箱 87371@qq.com
 - [服务条款](https://whatab.com/terms): 使用哇塔主页的服务约定
 - [隐私政策](https://whatab.com/privacy): 个人信息的收集、使用和联系方式

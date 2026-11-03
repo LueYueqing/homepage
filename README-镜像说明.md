@@ -31,8 +31,8 @@ homepage/
 ├── about/index.html        关于
 ├── contact/index.html      联系方式
 ├── contract/index.html     用户协议
-├── zhinan/index.html       使用指南
-├── zhuye/index.html        设为浏览器主页教程
+├── guide/index.html        使用指南
+├── set-homepage/index.html 设为浏览器主页教程
 ├── qqlogin/index.html      QQ 登录页
 ├── _api/                   ★ 运行时数据（从线上接口采集的真实 JSON）
 │   ├── clogin_raw.json     /home/user/clogin 原始响应
@@ -44,7 +44,7 @@ homepage/
 │   ├── css/index/          主样式（含版本哈希后缀）
 │   ├── js/                 jQuery + 业务脚本
 │   └── images/             图标 / siteimg 导航图标 / searchChoice 搜索引擎图标
-├── zhuye/images/           浏览器设置教程截图（29 张）
+├── public/set-homepage/images/  浏览器设置教程截图（29 张）
 ├── _ext/                   外部 CDN 资源（已本地化）
 │   ├── apps_bdimg_com/     jQuery 2.1.4
 │   └── cdn_bootcdn_net/    jquery-cookie 1.4.1

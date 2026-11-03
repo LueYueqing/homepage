@@ -175,7 +175,7 @@ export default function UploadBackgrounds() {
     return (
       <div className="upload-panel">
         <p>登录后才能上传背景图。普通用户最多 20 张，会员一年 {priceYuan} 元可上传 100 张。首页壁纸库选择「自选」时会轮换这些图片。</p>
-        <a className="upload-btn" href="/wechat/login?next=/zhuye/upload">微信登录</a>
+        <a className="upload-btn" href="/wechat/login?next=/set-homepage/upload">微信登录</a>
       </div>
     );
   }

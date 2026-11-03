@@ -18,7 +18,7 @@ const HOME_SCRIPTS = [
   '/static/home/js/jquery.cookie.min.js',
   '/static/home/js/jquery-ui.min.sortable.js',
   '/static/home/js/index/tool.js',
-  '/zhuye/browser.js',
+  '/set-homepage/browser.js',
   '/static/home/js/index/search.52bc13.js',
   '/static/home/js/index/keyword.bc4442.js',
   '/static/home/js/index/console.d222c4.js',

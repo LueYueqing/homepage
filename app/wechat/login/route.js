@@ -24,8 +24,8 @@ export function GET(request) {
   const response = NextResponse.redirect(authorizeUrl(state));
   response.cookies.set('wechat_state', state, cookieOptions());
   const next = new URL(request.url).searchParams.get('next');
-  if (next === '/zhuye/upload') {
-    response.cookies.set('wa_next', next, cookieOptions());
+  if (next === '/set-homepage/upload' || next === '/zhuye/upload') {
+    response.cookies.set('wa_next', '/set-homepage/upload', cookieOptions());
   }
   return response;
 }

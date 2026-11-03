@@ -75,8 +75,8 @@ export default function UploadPage() {
             <a href="/">首页</a>
             <a href="/about">关于我们</a>
             <a href="/contact">联系</a>
-            <a href="/zhinan">使用指南</a>
-            <a className="upload-current" href="/zhuye/upload">上传背景图</a>
+            <a href="/guide">使用指南</a>
+            <a className="upload-current" href="/set-homepage/upload">上传背景图</a>
           </ul>
         </div>
       </div>
@@ -97,9 +97,9 @@ export default function UploadPage() {
             <a href="/">哇塔首页</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="/about">关于我们</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="/contact">联系</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/zhinan">使用指南</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/zhuye">设为主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/zhinan">常见问题解答</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/guide">使用指南</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/set-homepage">设为主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/guide">常见问题解答</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="/terms">服务条款</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="/privacy">隐私政策</a>&nbsp;&nbsp;&nbsp;&nbsp;
           </div>

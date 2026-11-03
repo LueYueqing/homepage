@@ -80,13 +80,13 @@ function bootHomePage(){
                 var browserInfo = new Browser();
                 var browser=browserInfo.browser.toLowerCase();
                 if(browser=='edge'){
-                    $('#welcome-btn-img').attr('src','/zhuye/images/edge.svg');
+                    $('#welcome-btn-img').attr('src','/set-homepage/images/edge.svg');
                     $('#welcome-btn').attr('href','https://microsoftedge.microsoft.com/addons/detail/%E7%AE%80%E6%B3%95%E4%B8%BB%E9%A1%B5/bagnonhnfegiiobmnkfdafkeaanhojef');            
                     $('.welcome-btn-text').html('添加Edge官方扩展');
                     $('.welcome-btn-tips').html('安装完毕在浏览器在扩展页面“启用”一下扩展');            
                 }
                 // if(browser=='chrome'){
-                //     $('#welcome-btn-img').attr('src','/zhuye/images/chrome.svg');
+                //     $('#welcome-btn-img').attr('src','/set-homepage/images/chrome.svg');
                 //     $('#welcome-btn').attr('href','/pages/chromeext');            
                 //     $('.welcome-btn-text').html('添加Chrome官方扩展');
                 //     $('.welcome-btn-tips').html('打开浏览器默认显示哇塔主页');            
