@@ -11,10 +11,14 @@ function home(request, reason) {
   const origin = forwarded
     ? `${proto}://${forwarded.split(',')[0].trim()}`
     : new URL(request.url).origin;
-  const url = new URL('/', origin);
+  const nextPath = !reason && request.cookies?.get('wa_next')?.value === '/zhuye/upload'
+    ? '/zhuye/upload'
+    : '/';
+  const url = new URL(nextPath, origin);
   if (reason) url.searchParams.set('wechat', reason);
   const response = NextResponse.redirect(url);
   response.cookies.set('wechat_state', '', { path: '/', maxAge: 0 });
+  response.cookies.set('wa_next', '', { path: '/', maxAge: 0 });
   return response;
 }
 

@@ -13,7 +13,7 @@ function cookieOptions() {
   };
 }
 
-export function GET() {
+export function GET(request) {
   if (!wechatReady()) {
     return new NextResponse(
       '<!doctype html><meta charset="utf-8"><title>微信登录</title><p>微信登录的 AppID 和 AppSecret 还没有配置。配置 WECHAT_APP_ID、WECHAT_APP_SECRET 后即可使用。</p><p><a href="/">返回首页</a></p>',
@@ -23,5 +23,9 @@ export function GET() {
   const state = createOAuthState();
   const response = NextResponse.redirect(authorizeUrl(state));
   response.cookies.set('wechat_state', state, cookieOptions());
+  const next = new URL(request.url).searchParams.get('next');
+  if (next === '/zhuye/upload') {
+    response.cookies.set('wa_next', next, cookieOptions());
+  }
   return response;
 }

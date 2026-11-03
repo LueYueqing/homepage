@@ -3,6 +3,20 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { getPool } from '../../../lib/db';
 import {
+  CUSTOM_BG_CATEGORY,
+  MAX_USER_BACKGROUNDS,
+  addUserBackground,
+  countUserBackgrounds,
+  imageKind,
+  listUserBackgroundThumbs,
+  listUserBackgrounds,
+  markUserBackgroundUsed,
+  peekUserBackground,
+  removeUserBackground,
+  takeNextUserBackground,
+} from '../../../lib/backgrounds';
+import { isUserBackgroundUrl } from '../../../lib/oss';
+import {
   destroySession,
   findUserBySession,
   readSessionToken,
@@ -238,23 +252,33 @@ async function listNavCategories() {
     });
 }
 
-async function listCategories() {
+async function listCategories(user) {
   const pool = getPool();
   const [rows] = await pool.query(
     `SELECT category, category_note, COUNT(*) AS total
      FROM wallpapers
      GROUP BY category, category_note`,
   );
-  return rows
+  const categories = rows
     .map((row) => ({
       category: row.category,
       category_note: row.category_note,
       total: Number(row.total),
     }))
     .sort((a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category));
+  categories.unshift({
+    category: CUSTOM_BG_CATEGORY,
+    category_note: '自选',
+    total: user ? await countUserBackgrounds(user.id) : 0,
+  });
+  return categories;
 }
 
-async function listThumbs(category, offset) {
+async function listThumbs(category, offset, user) {
+  if (category === CUSTOM_BG_CATEGORY) {
+    if (!user) return [];
+    return listUserBackgroundThumbs(user.id, offset);
+  }
   const pool = getPool();
   const [rows] = await pool.query(
     `SELECT thumb_path
@@ -269,11 +293,17 @@ async function listThumbs(category, offset) {
 
 function safeImagePath(value) {
   const imagePath = String(value || '').trim();
-  if (!/^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(imagePath)) return '';
-  return imagePath;
+  if (/^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(imagePath)) return imagePath;
+  if (isUserBackgroundUrl(imagePath)) return imagePath.split('?')[0];
+  return '';
 }
 
-async function peekNextWallpaper(category, exclude) {
+async function peekNextWallpaper(category, exclude, user) {
+  if (category === CUSTOM_BG_CATEGORY) {
+    if (!user) return null;
+    const pick = await peekUserBackground(user.id, exclude);
+    return pick ? { image_path: pick.image_url, category: CUSTOM_BG_CATEGORY, title: '自选' } : null;
+  }
   const pool = getPool();
   const filters = [];
   const params = [];
@@ -295,10 +325,14 @@ async function peekNextWallpaper(category, exclude) {
     params,
   );
   if (rows.length || !exclude) return rows[0] || null;
-  return peekNextWallpaper(category, '');
+  return peekNextWallpaper(category, '', user);
 }
 
-async function markWallpaperUsed(imagePath) {
+async function markWallpaperUsed(imagePath, user) {
+  if (isUserBackgroundUrl(imagePath)) {
+    if (!user) return false;
+    return markUserBackgroundUsed(user.id, imagePath);
+  }
   const pool = getPool();
   const [result] = await pool.query(
     'UPDATE wallpapers SET last_used_at = NOW() WHERE image_path = ?',
@@ -307,7 +341,12 @@ async function markWallpaperUsed(imagePath) {
   return result.affectedRows > 0;
 }
 
-async function takeNextWallpaper(category) {
+async function takeNextWallpaper(category, user) {
+  if (category === CUSTOM_BG_CATEGORY) {
+    if (!user) return null;
+    const pick = await takeNextUserBackground(user.id);
+    return pick ? { image_path: pick.image_url, category: CUSTOM_BG_CATEGORY, title: '自选' } : null;
+  }
   const pool = getPool();
   const connection = await pool.getConnection();
   try {
@@ -364,6 +403,34 @@ function userPayload(base, user) {
     nav_categories: user.nav_categories,
   };
   return data;
+}
+
+async function handleBackgroundUpload(request, user) {
+  if (!user) return NextResponse.json({ error: '请先微信登录' }, { status: 401 });
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return NextResponse.json({ error: '没有收到图片' }, { status: 400 });
+  }
+  const file = form.get('file');
+  if (!file || typeof file.arrayBuffer !== 'function' || !file.size) {
+    return NextResponse.json({ error: '请选择图片' }, { status: 400 });
+  }
+  if (file.size > 8 * 1024 * 1024) {
+    return NextResponse.json({ error: '单张图片不能超过 8MB' }, { status: 400 });
+  }
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const kind = imageKind(buffer);
+  if (!kind) return NextResponse.json({ error: '只支持 JPG、PNG、WEBP' }, { status: 400 });
+  try {
+    const saved = await addUserBackground(user.id, buffer, kind.ext, kind.type);
+    return NextResponse.json({ success: 1, ...saved });
+  } catch (error) {
+    const status = error.status || 500;
+    const message = status === 500 ? '上传失败，请稍后再试' : (error.message || '上传失败');
+    return NextResponse.json({ error: message }, { status });
+  }
 }
 
 async function handle(request, context) {
@@ -432,20 +499,44 @@ async function handle(request, context) {
     return NextResponse.json(await listNavCategorySites(category, offset, 30));
   }
   if (key === '/home/bg/categories') {
-    return NextResponse.json(await listCategories());
+    return NextResponse.json(await listCategories(user));
+  }
+  if (key === '/home/bg/mine') {
+    if (!user) return NextResponse.json({ logged_in: false, images: [], total: 0, limit: MAX_USER_BACKGROUNDS });
+    const images = await listUserBackgrounds(user.id);
+    return NextResponse.json({
+      logged_in: true,
+      images,
+      total: images.length,
+      limit: MAX_USER_BACKGROUNDS,
+    });
+  }
+  if (key === '/home/bg/upload') {
+    return handleBackgroundUpload(request, user);
+  }
+  if (key === '/home/bg/remove') {
+    if (!user) return NextResponse.json({ error: '请先微信登录' }, { status: 401 });
+    const fields = await readFields(request);
+    try {
+      const removed = await removeUserBackground(user.id, fields.id);
+      if (!removed) return NextResponse.json({ error: '没有找到这张背景图' }, { status: 404 });
+    } catch {
+      return NextResponse.json({ error: '删除失败，请稍后再试' }, { status: 500 });
+    }
+    return NextResponse.json({ success: 1 });
   }
   if (key === '/home/bg/ajaxbg') {
     const fields = await readFields(request);
     const category = safeCategory(fields.category);
     const offset = Math.max(0, Number.parseInt(fields.offset, 10) || 0);
     if (!category) return NextResponse.json([]);
-    return NextResponse.json(await listThumbs(category, offset));
+    return NextResponse.json(await listThumbs(category, offset, user));
   }
   if (key === '/home/bg/peek') {
     const fields = await readFields(request);
     const category = safeCategory(fields.category);
     const exclude = safeImagePath(fields.exclude);
-    const pick = await peekNextWallpaper(category, exclude);
+    const pick = await peekNextWallpaper(category, exclude, user);
     if (!pick) return NextResponse.json({ success: 0 });
     return NextResponse.json({
       success: 1,
@@ -458,14 +549,20 @@ async function handle(request, context) {
     const fields = await readFields(request);
     const imagePath = safeImagePath(fields.image_path);
     if (!imagePath) return NextResponse.json({ success: 0 });
-    const used = await markWallpaperUsed(imagePath);
+    const used = await markWallpaperUsed(imagePath, user);
     return NextResponse.json({ success: used ? 1 : 0 });
   }
   if (key === '/home/bg/randbg') {
     const fields = await readFields(request);
     const category = safeCategory(fields.category);
-    const pick = await takeNextWallpaper(category);
+    if (category === CUSTOM_BG_CATEGORY && !user) {
+      return NextResponse.json({ success: 0, error: '请先微信登录', login: 1 });
+    }
+    const pick = await takeNextWallpaper(category, user);
     if (!pick) {
+      if (category === CUSTOM_BG_CATEGORY) {
+        return NextResponse.json({ success: 0, error: '还没有自选背景图，请先上传' });
+      }
       return NextResponse.json({ success: 0, bg_url: data.uiData.bg_url });
     }
     return NextResponse.json({

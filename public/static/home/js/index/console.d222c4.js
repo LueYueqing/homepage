@@ -3,11 +3,16 @@ var BG_READY_KEY='jf_bg_ready';
 function isBgCategory(value){
     return /^[a-z0-9-]{1,32}$/.test(String(value||''));
 }
+function isUserWallpaper(url){
+    return /^https:\/\/[^?#]+\/whatab\/[0-9]+\/[a-f0-9]{16}\.(jpg|png|webp)$/i.test(String(url||'').split('?')[0]);
+}
 function wallpaperInCategory(url, category){
+    if(category==='custom') return isUserWallpaper(url);
     return isBgCategory(category) && String(url||'').indexOf('/uploads/bg/'+category+'/')===0;
 }
 function isWallpaperPath(url){
-    return /^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(String(url||'').split('?')[0]);
+    var path=String(url||'').split('?')[0];
+    return /^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(path) || isUserWallpaper(path);
 }
 function readStoredCategory(){
     var value='';
@@ -217,7 +222,7 @@ function consolejs(uiData){
         var category=readStoredCategory();
         rotateBg(category, function(url){
             preloadNextBg(category, url);
-        });
+        }, true);
     });
 
     //下载当前壁纸    
@@ -758,7 +763,7 @@ $('#console-title-box').click(function(){
     var bgRequestId=0;
     $ajaxBgStatus=1;
 
-    function rotateBg(category, done){
+    function rotateBg(category, done, notify){
         var requestId=++bgRotateSeq;
         var fd=new FormData();
         if(category){
@@ -777,6 +782,13 @@ $('#console-title-box').click(function(){
                     applyBg(data.bg_url);
                     if(done){
                         done(data.bg_url);
+                    }
+                    return;
+                }
+                if(notify && category==='custom' && data && data.error){
+                    showmsg(data.error);
+                    if(data.login){
+                        showLoginBtn();
                     }
                 }
             }
@@ -839,7 +851,9 @@ $('#console-title-box').click(function(){
                 currentNote=bgCategories[n].category_note;
             }
         }
-        hint.innerHTML=currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张';
+        hint.innerHTML=bgCategory==='custom'
+            ? '已选中「自选」，将轮换你上传的背景图。<a href="/zhuye/upload">上传背景图</a>'
+            : (currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张');
         for(var i=0;i<bgCategories.length;i++){
             var item=bgCategories[i];
             var chip=document.createElement('div');
@@ -858,6 +872,10 @@ $('#console-title-box').click(function(){
         if(!isBgCategory(category)){
             return;
         }
+        if(category==='custom' && window.__jfUser && Number(window.__jfUser.user_type)!==1){
+            showLoginBtn();
+            return;
+        }
         var changed=category!==bgCategory;
         bgCategory=category;
         writeStoredCategory(category);
@@ -868,7 +886,7 @@ $('#console-title-box').click(function(){
             try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
             rotateBg(category, function(url){
                 preloadNextBg(category, url);
-            });
+            }, true);
         }
     }
 
@@ -1090,7 +1108,13 @@ $('#console-title-box').click(function(){
                         var ajaxBgList=JSON.parse(req.response);
                         if(!ajaxBgList.length){
                             bgNoMore=true;
-                            oBgLoadText.innerHTML='';
+                            if(previewCategory==='custom' && bgOffset===0){
+                                oBgLoadText.innerHTML=(window.__jfUser && Number(window.__jfUser.user_type)===1)
+                                    ? '还没有自选背景，请先<a href="/zhuye/upload">上传背景图</a>'
+                                    : '登录后才能使用自选背景';
+                            }else{
+                                oBgLoadText.innerHTML='';
+                            }
                             return;
                         }
                         if(ajaxBgList.length<15){
