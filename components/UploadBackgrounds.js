@@ -264,7 +264,8 @@ export default function UploadBackgrounds() {
       {renderPager()}
       <div className="upload-grid">
         {pageImages.map((image) => (
-          <div className="upload-card" key={image.id} style={{ backgroundImage: `url("${image.url}")` }}>
+          <div className="upload-card" key={image.id}>
+            <img src={image.url} alt="" />
             <button type="button" disabled={busy} onClick={() => removeImage(image.id)}>删除</button>
           </div>
         ))}

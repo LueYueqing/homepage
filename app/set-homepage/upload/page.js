@@ -67,13 +67,18 @@ export default function UploadPage() {
           grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
           gap: 14px;
           margin-top: 22px;
+          align-items: start;
         }
         .upload-card {
           position: relative;
-          aspect-ratio: 16 / 9;
           border-radius: 8px;
-          background: #e7e7e7 center / contain no-repeat;
+          background: #e7e7e7;
           overflow: hidden;
+        }
+        .upload-card img {
+          display: block;
+          width: 100%;
+          height: auto;
         }
         .upload-pager {
           display: flex;
