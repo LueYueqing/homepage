@@ -10,6 +10,7 @@ export default function UploadBackgrounds() {
   const [images, setImages] = useState([]);
   const [message, setMessage] = useState('正在读取已上传的背景图');
   const [busy, setBusy] = useState(false);
+  const [pending, setPending] = useState([]);
 
   async function load(keepMessage) {
     const response = await fetch('/home/bg/mine', { method: 'POST' });
@@ -24,23 +25,40 @@ export default function UploadBackgrounds() {
     load().catch(() => setMessage('读取失败，请刷新页面再试'));
   }, []);
 
-  async function uploadFiles(fileList) {
+  function chooseFiles(fileList) {
     const files = Array.from(fileList || []);
     if (!files.length) return;
+    const room = LIMIT - images.length;
+    const chosen = files.slice(0, Math.max(room, 0));
+    setPending(chosen);
+    if (!chosen.length) {
+      setMessage(`最多上传 ${LIMIT} 张背景图`);
+      return;
+    }
+    const extra = files.length - chosen.length;
+    setMessage(extra > 0
+      ? `已选择 ${chosen.length} 张，还有 ${extra} 张超出 20 张上限`
+      : `已选择 ${chosen.length} 张，点「上传」后才会提交`);
+  }
+
+  async function uploadFiles() {
+    if (!pending.length) return;
     setBusy(true);
-    setMessage('');
+    setMessage('正在上传…');
     let remain = LIMIT - images.length;
-    for (const file of files) {
+    for (let index = 0; index < pending.length; index += 1) {
       if (remain <= 0) {
+        setPending(pending.slice(index));
         setMessage(`最多上传 ${LIMIT} 张背景图`);
         setBusy(false);
         return;
       }
       const body = new FormData();
-      body.append('file', file);
+      body.append('file', pending[index]);
       const response = await fetch('/home/bg/upload', { method: 'POST', body });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.success) {
+        setPending(pending.slice(index));
         setMessage(data.error || '上传失败，请稍后再试');
         await load(true).catch(() => {});
         setBusy(false);
@@ -48,7 +66,9 @@ export default function UploadBackgrounds() {
       }
       remain -= 1;
     }
-    await load().catch(() => {});
+    setPending([]);
+    await load(true).catch(() => {});
+    setMessage('上传成功。到首页壁纸库选择「自选」即可使用');
     setBusy(false);
   }
 
@@ -86,23 +106,36 @@ export default function UploadBackgrounds() {
       <p>每个账号最多 {LIMIT} 张。上传后，在首页壁纸设置里选择「自选」，就会使用这些背景图。</p>
       <div className="upload-row">
         <label className={`upload-btn${busy || images.length >= LIMIT ? ' disabled' : ''}`}>
-          {busy ? '处理中…' : '选择图片'}
+          选择图片
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
             multiple
             disabled={busy || images.length >= LIMIT}
             onChange={(event) => {
-              const { files } = event.target;
+              const files = Array.from(event.target.files || []);
               event.target.value = '';
-              uploadFiles(files).catch(() => setMessage('上传失败，请稍后再试'));
+              chooseFiles(files);
             }}
           />
         </label>
+        <button
+          type="button"
+          className="upload-submit"
+          disabled={busy || !pending.length || images.length >= LIMIT}
+          onClick={() => uploadFiles().catch(() => setMessage('上传失败，请稍后再试'))}
+        >
+          {busy ? '上传中…' : '上传'}
+        </button>
         <span>{images.length}/{LIMIT}</span>
       </div>
-      <p className="upload-note">支持 JPG、PNG、WEBP，单张不超过 8MB。</p>
-      {message ? <p className="upload-message">{message}</p> : null}
+      {pending.length ? (
+        <ul className="upload-pending">
+          {pending.map((file) => <li key={`${file.name}-${file.size}-${file.lastModified}`}>{file.name}</li>)}
+        </ul>
+      ) : null}
+      <p className="upload-note">先选择图片，再点「上传」。支持 JPG、PNG、WEBP，单张不超过 8MB。</p>
+      {message ? <p className={/失败|最多|没有|请/.test(message) ? 'upload-message' : 'upload-note'}>{message}</p> : null}
       <div className="upload-grid">
         {images.map((image) => (
           <div className="upload-card" key={image.id} style={{ backgroundImage: `url("${image.url}")` }}>

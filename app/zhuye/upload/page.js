@@ -27,6 +27,16 @@ export default function UploadPage() {
           border: 0;
         }
         .upload-btn.disabled { opacity: 0.55; cursor: default; }
+        .upload-submit {
+          border: 0;
+          border-radius: 100px;
+          padding: 8px 18px;
+          background: #2c7bf6;
+          color: #fff;
+          cursor: pointer;
+        }
+        .upload-submit:disabled { opacity: 0.45; cursor: default; }
+        .upload-pending { margin: 8px 0 0; padding-left: 18px; color: #666; font-size: 14px; }
         .upload-btn input { display: none; }
         .upload-note, .upload-message { color: #666; font-size: 14px; }
         .upload-message { color: #b42318; }
