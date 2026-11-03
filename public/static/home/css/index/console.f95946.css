@@ -810,16 +810,20 @@ color:#cccccc;
     color:#2c7bf6;
     background:#f3f7ff;
 }
-.bg-upload-panel{
-    width:100%;
-    padding:18px 8px;
-    font-size:13px;
-    line-height:1.8;
+.bg-upload-entry{
+    display:block;
+    margin:3px 0 8px;
+    height:34px;
+    line-height:34px;
     text-align:center;
-    color:#666666;
-}
-.bg-upload-panel a{
+    border-radius:6px;
+    border:1px dashed #2c7bf6;
     color:#2c7bf6;
+    font-size:13px;
+    text-decoration:none;
+}
+.bg-upload-entry:hover{
+    background:#f3f7ff;
 }
 .bg-category-hint{
     width:100%;
