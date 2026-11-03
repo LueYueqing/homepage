@@ -34,7 +34,28 @@ export default function UploadPage() {
           cursor: pointer;
         }
         .upload-submit:disabled { opacity: 0.45; cursor: default; }
-        .upload-pending { margin: 8px 0 0; padding-left: 18px; color: #666; font-size: 14px; }
+        .upload-progress {
+          position: relative;
+          height: 28px;
+          margin-top: 12px;
+          border-radius: 100px;
+          background: #eee;
+          overflow: hidden;
+        }
+        .upload-progress-bar {
+          height: 100%;
+          background: #2c7bf6;
+          transition: width .2s;
+        }
+        .upload-progress span {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          color: #333;
+        }
         .upload-btn input { display: none; }
         .upload-note, .upload-message { color: #666; font-size: 14px; }
         .upload-message { color: #b42318; }

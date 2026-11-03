@@ -17,6 +17,7 @@ export default function UploadBackgrounds() {
   const [busy, setBusy] = useState(false);
   const [paying, setPaying] = useState('');
   const [pending, setPending] = useState([]);
+  const [progress, setProgress] = useState(null);
   const [qr, setQr] = useState('');
   const [orderNo, setOrderNo] = useState('');
   const [page, setPage] = useState(1);
@@ -83,6 +84,7 @@ export default function UploadBackgrounds() {
     const room = limit - images.length;
     const chosen = files.slice(0, Math.max(room, 0));
     setPending(chosen);
+    setProgress(null);
     if (!chosen.length) {
       setMessage(`最多上传 ${limit} 张背景图`);
       return;
@@ -95,8 +97,10 @@ export default function UploadBackgrounds() {
 
   async function uploadFiles() {
     if (!pending.length) return;
+    const total = pending.length;
     setBusy(true);
-    setMessage('正在上传…');
+    setMessage('');
+    setProgress({ done: 0, total });
     let remain = limit - images.length;
     for (let index = 0; index < pending.length; index += 1) {
       if (remain <= 0) {
@@ -111,14 +115,17 @@ export default function UploadBackgrounds() {
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.success) {
         setPending(pending.slice(index));
+        setProgress({ done: index, total });
         setMessage(data.error || '上传失败，请稍后再试');
         await load(true).catch(() => {});
         setBusy(false);
         return;
       }
       remain -= 1;
+      setProgress({ done: index + 1, total });
     }
     setPending([]);
+    setProgress(null);
     setPage(1);
     await load(true).catch(() => {});
     setMessage('上传成功。到首页壁纸库选择「自选」即可使用');
@@ -246,10 +253,11 @@ export default function UploadBackgrounds() {
         </button>
         <span>{images.length}/{limit}</span>
       </div>
-      {pending.length ? (
-        <ul className="upload-pending">
-          {pending.map((file) => <li key={`${file.name}-${file.size}-${file.lastModified}`}>{file.name}</li>)}
-        </ul>
+      {progress ? (
+        <div className="upload-progress" role="progressbar" aria-valuenow={progress.done} aria-valuemin={0} aria-valuemax={progress.total}>
+          <div className="upload-progress-bar" style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }} />
+          <span>{progress.done}/{progress.total}</span>
+        </div>
       ) : null}
       <p className="upload-note">先选择图片，再点「上传」。支持 JPG、PNG、WEBP，单张不超过 8MB。</p>
       {message ? <p className={/失败|最多|没有|请|还没有|暂时/.test(message) ? 'upload-message' : 'upload-note'}>{message}</p> : null}
