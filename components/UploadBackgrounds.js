@@ -141,7 +141,7 @@ export default function UploadBackgrounds() {
   async function startPay(provider) {
     setPaying(provider);
     setQr('');
-    setMessage(provider === 'wechat' ? '正在生成微信支付' : '正在前往支付宝');
+    setMessage(provider === 'wechat' ? '正在生成微信支付' : '正在生成支付宝支付');
     const body = new FormData();
     body.append('provider', provider);
     const response = await fetch('/home/vip/create', { method: 'POST', body });
@@ -155,13 +155,11 @@ export default function UploadBackgrounds() {
       window.sessionStorage.setItem('wa_vip_order', data.out_trade_no);
       setOrderNo(data.out_trade_no);
     }
-    if (data.pay_url) {
-      window.location.href = data.pay_url;
-      return;
-    }
     if (data.qr) {
       setQr(data.qr);
-      setMessage('请用微信扫码支付 5 元。支付完成后会员会自动开通');
+      setMessage(provider === 'wechat'
+        ? '请用微信扫码支付 5 元。支付完成后会员会自动开通'
+        : '请用支付宝扫码支付 5 元。支付完成后会员会自动开通');
       setPaying('');
       return;
     }
@@ -198,7 +196,7 @@ export default function UploadBackgrounds() {
             {paying === 'alipay' ? '正在打开…' : '支付宝支付'}
           </button>
         </div>
-        {qr ? <img className="vip-qr" src={qr} alt="微信支付二维码" /> : null}
+        {qr ? <img className="vip-qr" src={qr} alt="支付二维码" /> : null}
       </div>
       <p>上传后，在首页壁纸设置里选择「自选」，就会使用这些背景图。</p>
       <div className="upload-row">

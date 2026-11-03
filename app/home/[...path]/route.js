@@ -14,7 +14,7 @@ import {
   removeUserBackground,
   takeNextUserBackground,
 } from '../../../lib/backgrounds';
-import { createAlipayPayment, createWechatPayment, paymentReady } from '../../../lib/pay';
+import { createAlipayPayment, createWechatPayment, paymentReady, syncVipOrder } from '../../../lib/pay';
 import { isUserBackgroundUrl } from '../../../lib/oss';
 import {
   destroySession,
@@ -22,7 +22,7 @@ import {
   readSessionToken,
   saveUserSettings,
 } from '../../../lib/users';
-import { createVipOrder, FREE_UPLOAD_LIMIT, VIP_PRICE_YUAN, vipOrderForUser } from '../../../lib/vip';
+import { createVipOrder, FREE_UPLOAD_LIMIT, VIP_PRICE_YUAN } from '../../../lib/vip';
 
 export const dynamic = 'force-dynamic';
 
@@ -175,12 +175,6 @@ function safeCategory(value) {
   if (!category) return '';
   if (!/^[a-z0-9-]{1,32}$/.test(category)) return '';
   return category;
-}
-
-function clientIp(request) {
-  const forwarded = request.headers.get('x-forwarded-for') || '';
-  const ip = forwarded.split(',')[0].trim();
-  return /^\d{1,3}(\.\d{1,3}){3}$/.test(ip) ? ip : '127.0.0.1';
 }
 
 async function readFields(request) {
@@ -546,14 +540,12 @@ async function handle(request, context) {
     }
     try {
       const order = await createVipOrder(user.id, fields.provider);
-      if (fields.provider === 'wechat') {
-        const payment = await createWechatPayment(order, clientIp(request));
-        const QRCode = (await import('qrcode')).default;
-        const qr = await QRCode.toDataURL(payment.codeUrl, { margin: 1, width: 240 });
-        return NextResponse.json({ out_trade_no: order.outTradeNo, qr });
-      }
-      const payment = createAlipayPayment(order);
-      return NextResponse.json({ out_trade_no: order.outTradeNo, pay_url: payment.payUrl });
+      const payment = fields.provider === 'wechat'
+        ? await createWechatPayment(order)
+        : await createAlipayPayment(order);
+      const QRCode = (await import('qrcode')).default;
+      const qr = await QRCode.toDataURL(payment.codeUrl, { margin: 1, width: 240 });
+      return NextResponse.json({ out_trade_no: order.outTradeNo, qr });
     } catch (error) {
       const status = error.status || 500;
       return NextResponse.json({ error: status === 500 ? '暂时无法发起支付' : error.message }, { status });
@@ -562,7 +554,7 @@ async function handle(request, context) {
   if (key === '/home/vip/status') {
     if (!user) return NextResponse.json({ error: '请先微信登录' }, { status: 401 });
     const fields = await readFields(request);
-    const order = await vipOrderForUser(user.id, String(fields.out_trade_no || '').slice(0, 32));
+    const order = await syncVipOrder(user.id, String(fields.out_trade_no || '').slice(0, 32));
     if (!order) return NextResponse.json({ error: '没有找到这笔订单' }, { status: 404 });
     return NextResponse.json(order);
   }
