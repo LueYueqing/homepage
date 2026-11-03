@@ -1,6 +1,10 @@
+import { HOME_DESCRIPTION, HOME_TITLE, SITE } from '../lib/seo';
+
 export const metadata = {
-  title: '哇塔主页',
-  description: '哇塔主页是一个极简风格的主页网站，简洁清新，轻快大方。',
+  metadataBase: new URL(SITE),
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  robots: { index: true, follow: true },
   icons: { icon: '/favicon.ico' },
 };
 

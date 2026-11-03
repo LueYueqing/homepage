@@ -1,5 +1,12 @@
 import LegacyPage from '../components/LegacyPage';
 import OrderedScripts from '../components/OrderedScripts';
+import { HOME_DESCRIPTION, HOME_TITLE, homeJsonLd, pageMeta } from '../lib/seo';
+
+export const metadata = pageMeta({
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  path: '/',
+});
 
 const HOME_STYLES = [
   '/static/home/css/index/base.9f99ea.css',
@@ -19,11 +26,6 @@ const HOME_SCRIPTS = [
   '/static/home/js/index/base.46dbb4.js',
 ];
 
-export const metadata = {
-  title: '哇塔主页',
-  keywords: '哇塔,哇塔主页,哇塔导航,网址导航',
-};
-
 export default function HomePage() {
   return (
     <>
@@ -37,6 +39,10 @@ export default function HomePage() {
           position: relative;
         }
       `}</style>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+      />
       <LegacyPage id="home-root" file="index.html" self="/" styles={HOME_STYLES} />
       <OrderedScripts srcs={HOME_SCRIPTS} />
     </>

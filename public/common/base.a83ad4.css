@@ -122,6 +122,14 @@ body {
 	color: #333333
 }
 
+h1.fontTitle1 {
+	display: inline;
+	margin: 0;
+	font-weight: normal;
+	font-size: 26px;
+	color: #333333;
+}
+
 .fontTitle2 {
 	font-size: 22px;
 	color: #333333
