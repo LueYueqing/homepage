@@ -72,7 +72,7 @@ export default function UploadPage() {
           position: relative;
           aspect-ratio: 16 / 9;
           border-radius: 8px;
-          background: #e7e7e7 center / cover no-repeat;
+          background: #e7e7e7 center / contain no-repeat;
           overflow: hidden;
         }
         .upload-pager {
