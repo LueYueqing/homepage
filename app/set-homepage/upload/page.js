@@ -1,3 +1,4 @@
+import SiteFooter from '../../../components/SiteFooter';
 import SiteHeader from '../../../components/SiteHeader';
 import UploadBackgrounds from '../../../components/UploadBackgrounds';
 
@@ -85,23 +86,7 @@ export default function UploadPage() {
           </div>
         </div>
       </div>
-      <div id="bottomDiv" style={{ margin: 0, padding: 0 }}>
-        <div id="botWidthDiv">
-          <div id="botLink">
-            <a href="/">哇塔首页</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/about">关于我们</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/contact">联系</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/guide">使用指南</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/set-homepage">设为主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/guide">常见问题解答</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/terms">服务条款</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/privacy">隐私政策</a>&nbsp;&nbsp;&nbsp;&nbsp;
-          </div>
-          <div id="bottom-text-box">
-            <div id="botCopyright">©2026 whatab.com&nbsp;&nbsp;<a id="bottom-beian" href="http://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2021102007号-15</a>&nbsp;&nbsp;东莞市梦霓科技有限公司</div>
-          </div>
-        </div>
-      </div>
+      <SiteFooter />
     </>
   );
 }

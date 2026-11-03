@@ -1,8 +1,23 @@
+import SiteFooter from './SiteFooter';
 import SiteHeader from './SiteHeader';
 import { readLegacyDocument } from '../lib/legacyHtml';
 
-function withoutHeader(html) {
-  return html.replace(/<div id="headDiv">[\s\S]*?<\/div>\s*<\/div>/, '');
+function withoutBlock(html, id) {
+  const marker = `id="${id}"`;
+  const start = html.indexOf(marker);
+  if (start < 0) return html;
+  const open = html.lastIndexOf('<div', start);
+  if (open < 0) return html;
+  const tag = /<\/?div\b[^>]*>/gi;
+  tag.lastIndex = open;
+  let depth = 0;
+  let match = tag.exec(html);
+  while (match) {
+    depth += match[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) return `${html.slice(0, open)}${html.slice(tag.lastIndex)}`;
+    match = tag.exec(html);
+  }
+  return html;
 }
 
 export default function LegacyPage({
@@ -14,7 +29,7 @@ export default function LegacyPage({
   header = false,
 }) {
   const doc = readLegacyDocument(file, { self, localImages });
-  const body = header ? withoutHeader(doc.body) : doc.body;
+  const body = header ? withoutBlock(withoutBlock(doc.body, 'headDiv'), 'bottomDiv') : doc.body;
 
   return (
     <>
@@ -24,6 +39,7 @@ export default function LegacyPage({
       {doc.headCss ? <style dangerouslySetInnerHTML={{ __html: doc.headCss }} /> : null}
       {header ? <SiteHeader current={self} /> : null}
       <div id={id} dangerouslySetInnerHTML={{ __html: body }} />
+      {header ? <SiteFooter /> : null}
     </>
   );
 }
