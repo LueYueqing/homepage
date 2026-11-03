@@ -26,7 +26,7 @@ export default function UploadPage() {
           cursor: pointer;
           border: 0;
         }
-        .upload-btn.disabled { opacity: 0.55; cursor: default; }
+        .upload-btn.disabled, .upload-btn:disabled { opacity: 0.55; cursor: default; }
         .upload-submit {
           border: 0;
           border-radius: 100px;
@@ -40,6 +40,9 @@ export default function UploadPage() {
         .upload-btn input { display: none; }
         .upload-note, .upload-message { color: #666; font-size: 14px; }
         .upload-message { color: #b42318; }
+        .vip-box { margin: 0 0 18px; padding: 14px 16px; background: #fff; border-radius: 10px; }
+        .vip-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 10px; }
+        .vip-qr { display: block; width: 220px; height: 220px; margin-top: 12px; background: #fff; }
         .upload-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
