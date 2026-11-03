@@ -864,6 +864,13 @@ $('#console-title-box').click(function(){
                 chooseBgCategory(this.dataset.category);
             };
             oBgCategoryBar.appendChild(chip);
+            if(item.category==='custom'){
+                var upload=document.createElement('a');
+                upload.className='bg-category-upload';
+                upload.href='/zhuye/upload';
+                upload.textContent='上传背景图';
+                oBgCategoryBar.appendChild(upload);
+            }
         }
         oBgCategoryBar.appendChild(hint);
     }

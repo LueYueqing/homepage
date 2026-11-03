@@ -810,6 +810,17 @@ color:#cccccc;
     color:#2c7bf6;
     background:#f3f7ff;
 }
+.bg-category-upload{
+    height:22px;
+    line-height:22px;
+    font-size:12px;
+    padding:0 4px;
+    color:#2c7bf6;
+    text-decoration:none;
+}
+.bg-category-upload:hover{
+    text-decoration:underline;
+}
 .bg-category-hint{
     width:100%;
     font-size:12px;
