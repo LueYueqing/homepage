@@ -1,6 +1,14 @@
+import { BUILD_ID } from './lib/build-id.mjs';
+
+const PAGE_CACHE = [
+  { key: 'Cache-Control', value: 'public, max-age=31536000' },
+  { key: 'ETag', value: `"${BUILD_ID}"` },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  generateEtags: false,
   async headers() {
     return [
       {
@@ -8,6 +16,14 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
+      },
+      {
+        source: '/',
+        headers: PAGE_CACHE,
+      },
+      {
+        source: '/:path((?!_next|home|wechat|vip|uploads|static|common|_ext|qqlogin|links).*)',
+        headers: PAGE_CACHE,
       },
     ];
   },

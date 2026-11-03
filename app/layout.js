@@ -1,3 +1,4 @@
+import { BUILD_ID } from '../lib/build-id.mjs';
 import { HOME_DESCRIPTION, HOME_TITLE, SITE } from '../lib/seo';
 
 export const metadata = {
@@ -18,6 +19,9 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="zh-cn">
+      <head>
+        <meta name="build" content={BUILD_ID} />
+      </head>
       <body>{children}</body>
     </html>
   );
