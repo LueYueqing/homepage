@@ -98,6 +98,10 @@ body {
 	color: #000000
 }
 
+#headWidthDiv ul a.nav-current {
+	font-weight: 600;
+}
+
 
 
 /* text----------------------------- */

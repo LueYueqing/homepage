@@ -8,5 +8,5 @@ export const metadata = pageMeta({
 });
 
 export default function AboutPage() {
-  return <LegacyPage file="about/index.html" self="/about" />;
+  return <LegacyPage file="about/index.html" self="/about" header />;
 }

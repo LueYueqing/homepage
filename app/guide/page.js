@@ -8,5 +8,5 @@ export const metadata = pageMeta({
 });
 
 export default function GuidePage() {
-  return <LegacyPage file="guide/index.html" self="/guide" />;
+  return <LegacyPage file="guide/index.html" self="/guide" header />;
 }

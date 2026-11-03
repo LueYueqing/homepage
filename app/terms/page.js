@@ -8,5 +8,5 @@ export const metadata = pageMeta({
 });
 
 export default function TermsPage() {
-  return <LegacyPage file="contract/index.html" self="/terms" />;
+  return <LegacyPage file="contract/index.html" self="/terms" header />;
 }

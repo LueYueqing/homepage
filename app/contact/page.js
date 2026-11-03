@@ -8,5 +8,5 @@ export const metadata = pageMeta({
 });
 
 export default function ContactPage() {
-  return <LegacyPage file="contact/index.html" self="/contact" />;
+  return <LegacyPage file="contact/index.html" self="/contact" header />;
 }

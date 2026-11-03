@@ -1,3 +1,4 @@
+import SiteHeader from '../../../components/SiteHeader';
 import UploadBackgrounds from '../../../components/UploadBackgrounds';
 
 export const metadata = {
@@ -10,11 +11,6 @@ export default function UploadPage() {
     <>
       <link rel="stylesheet" href="/common/base.a83ad4.css" />
       <style>{`
-        @media (min-width: 641px) {
-          #headWidthDiv ul { display: flex; align-items: center; }
-          #headWidthDiv ul a { width: auto; padding: 0 16px; float: none; white-space: nowrap; }
-        }
-        .upload-current { font-weight: 600; }
         .upload-panel { color: #333; line-height: 1.7; }
         .upload-row { display: flex; align-items: center; gap: 16px; margin: 18px 0 8px; }
         .upload-btn {
@@ -68,18 +64,7 @@ export default function UploadPage() {
           cursor: pointer;
         }
       `}</style>
-      <div id="headDiv">
-        <div id="headWidthDiv">
-          <a id="headLogo" href="/"><img src="/static/home/images/logo_text.svg" alt="哇塔主页" /></a>
-          <ul>
-            <a href="/">首页</a>
-            <a href="/about">关于我们</a>
-            <a href="/contact">联系</a>
-            <a href="/guide">使用指南</a>
-            <a className="upload-current" href="/set-homepage/upload">上传背景图</a>
-          </ul>
-        </div>
-      </div>
+      <SiteHeader current="/set-homepage/upload" />
       <div id="grayDiv">
         <div id="widthDiv">
           <div className="textMain">

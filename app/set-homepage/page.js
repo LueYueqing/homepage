@@ -11,7 +11,7 @@ export const metadata = pageMeta({
 export default function SetHomepagePage() {
   return (
     <>
-      <LegacyPage file="set-homepage/index.html" self="/set-homepage" localImages />
+      <LegacyPage file="set-homepage/index.html" self="/set-homepage" localImages header />
       <OrderedScripts
         srcs={[
           '/static/home/js/jquery-1.8.0.js',

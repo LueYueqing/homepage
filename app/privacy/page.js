@@ -8,5 +8,5 @@ export const metadata = pageMeta({
 });
 
 export default function PrivacyPage() {
-  return <LegacyPage file="privacy/index.html" self="/privacy" />;
+  return <LegacyPage file="privacy/index.html" self="/privacy" header />;
 }
