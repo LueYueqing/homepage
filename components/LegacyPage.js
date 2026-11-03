@@ -29,7 +29,8 @@ export default function LegacyPage({
   header = false,
 }) {
   const doc = readLegacyDocument(file, { self, localImages });
-  const body = header ? withoutBlock(withoutBlock(doc.body, 'headDiv'), 'bottomDiv') : doc.body;
+  const showFrame = header && self !== '/';
+  const body = showFrame ? withoutBlock(withoutBlock(doc.body, 'headDiv'), 'bottomDiv') : doc.body;
 
   return (
     <>
@@ -37,9 +38,9 @@ export default function LegacyPage({
         <link key={href} rel="stylesheet" href={href} />
       ))}
       {doc.headCss ? <style dangerouslySetInnerHTML={{ __html: doc.headCss }} /> : null}
-      {header ? <SiteHeader current={self} /> : null}
+      {showFrame ? <SiteHeader current={self} /> : null}
       <div id={id} dangerouslySetInnerHTML={{ __html: body }} />
-      {header ? <SiteFooter /> : null}
+      {showFrame ? <SiteFooter /> : null}
     </>
   );
 }
