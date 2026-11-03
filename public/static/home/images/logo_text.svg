@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 55">
-  <path fill="#202121" d="M46.81,12.35,26.19.44a4.11,4.11,0,0,0-3.71,0L1.85,12.35A4.1,4.1,0,0,0,0,15.56V39.37a4.12,4.12,0,0,0,1.85,3.22l20.62,11.9a4.11,4.11,0,0,0,3.71,0L46.8,42.59a4.1,4.1,0,0,0,1.85-3.22V15.56A4,4,0,0,0,46.81,12.35ZM37.54,31.94H11.13a4.67,4.67,0,0,1-4.84-4.47A4.68,4.68,0,0,1,11.12,23H37.54a4.69,4.69,0,0,1,4.84,4.48A4.68,4.68,0,0,1,37.54,31.94Z"/>
-  <text x="58" y="38" fill="#202121" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="28" font-weight="600">哇塔主页</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 64">
+  <rect width="64" height="64" rx="16" fill="#1C1B19"/>
+  <path fill="#F4F0E6" d="M32 10 L37.67 21.33 H26.33 Z"/>
+  <path fill="#F4F0E6" d="M23.83 26.33 H40.17 L45.83 37.67 H18.17 Z"/>
+  <path fill="#F4F0E6" d="M15.67 42.67 H48.33 L54 54 H10 Z"/>
+  <text x="78" y="42" fill="#202121" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="28" font-weight="600">哇塔主页</text>
 </svg>
