@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 const FREE_LIMIT = 20;
+const PAGE_SIZE = 48;
 
 export default function UploadBackgrounds() {
   const [ready, setReady] = useState(false);
@@ -18,6 +19,7 @@ export default function UploadBackgrounds() {
   const [pending, setPending] = useState([]);
   const [qr, setQr] = useState('');
   const [orderNo, setOrderNo] = useState('');
+  const [page, setPage] = useState(1);
 
   function applyAccount(data) {
     setLoggedIn(Boolean(data.logged_in));
@@ -117,6 +119,7 @@ export default function UploadBackgrounds() {
       remain -= 1;
     }
     setPending([]);
+    setPage(1);
     await load(true).catch(() => {});
     setMessage('上传成功。到首页壁纸库选择「自选」即可使用');
     setBusy(false);
@@ -180,6 +183,25 @@ export default function UploadBackgrounds() {
     );
   }
 
+  const pageCount = Math.max(1, Math.ceil(images.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageImages = images.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  function showPage(next) {
+    setPage(Math.min(Math.max(1, next), pageCount));
+  }
+
+  function renderPager() {
+    if (pageCount <= 1) return null;
+    return (
+      <div className="upload-pager">
+        <button type="button" className="upload-btn" disabled={currentPage <= 1} onClick={() => showPage(currentPage - 1)}>上一页</button>
+        <span>{currentPage} / {pageCount}</span>
+        <button type="button" className="upload-btn" disabled={currentPage >= pageCount} onClick={() => showPage(currentPage + 1)}>下一页</button>
+      </div>
+    );
+  }
+
   const vipText = isVip
     ? `会员有效期至 ${vipUntil}，最多可以上传 ${limit} 张。续费再延长一年。`
     : `当前是普通用户，最多 ${limit} 张。会员一年 ${priceYuan} 元，最多 100 张。`;
@@ -231,13 +253,15 @@ export default function UploadBackgrounds() {
       ) : null}
       <p className="upload-note">先选择图片，再点「上传」。支持 JPG、PNG、WEBP，单张不超过 8MB。</p>
       {message ? <p className={/失败|最多|没有|请|还没有|暂时/.test(message) ? 'upload-message' : 'upload-note'}>{message}</p> : null}
+      {renderPager()}
       <div className="upload-grid">
-        {images.map((image) => (
+        {pageImages.map((image) => (
           <div className="upload-card" key={image.id} style={{ backgroundImage: `url("${image.url}")` }}>
             <button type="button" disabled={busy} onClick={() => removeImage(image.id)}>删除</button>
           </div>
         ))}
       </div>
+      {renderPager()}
     </div>
   );
 }

@@ -53,6 +53,15 @@ export default function UploadPage() {
           background: #e7e7e7 center / cover no-repeat;
           overflow: hidden;
         }
+        .upload-pager {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          margin-top: 18px;
+          color: #666;
+          font-size: 14px;
+        }
         .upload-card button {
           position: absolute;
           right: 8px;
