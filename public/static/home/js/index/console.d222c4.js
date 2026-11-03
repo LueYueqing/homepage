@@ -704,10 +704,6 @@ $('#console-title-box').click(function(){
     //弹出登录框，并且加来源后缀
     function showLoginBtn(){
         $('#loginBlackBg').css('display','block');
-
-        $('#loginBtnA')[0].href='/qqlogin/';
-
-
         return false;
     }
 

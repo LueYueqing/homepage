@@ -207,32 +207,6 @@ function searchjs(engineData){
     //弹出登录框，并且加来源后缀
     function showLoginBtn(){        
         $('#loginBlackBg').css('display','block');
-        function getQueryVariable(variable)
-        {
-            var query = window.location.search.substring(1);
-            var vars = query.split("&");
-            for (var i=0;i<vars.length;i++) {
-                    var pair = vars[i].split("=");
-                    if(pair[0] == variable){return pair[1];}
-            }
-            return(false);
-        }
-
-        if(getQueryVariable('urm_sour')){
-            $('#loginBtnA')[0].href='/qqlogin/?time='+getQueryVariable('urm_sour');
-        }
-        if(getQueryVariable('page')){
-            $('#loginBtnA')[0].href='/qqlogin/?time='+getQueryVariable('page');
-        }
-        if(getQueryVariable('engine')){
-            $('#loginBtnA')[0].href='/qqlogin/?time='+getQueryVariable('engine');
-        }
-        if(getQueryVariable('time')){
-            $('#loginBtnA')[0].href='/qqlogin/?time='+getQueryVariable('time');
-        }
-        if(getQueryVariable('ext')){
-            $('#loginBtnA')[0].href='/qqlogin/?time='+'bl3'+getQueryVariable('ext');
-        }        
         return false;
     }
 
