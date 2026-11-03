@@ -11,8 +11,7 @@ function home(request, reason) {
   const origin = forwarded
     ? `${proto}://${forwarded.split(',')[0].trim()}`
     : new URL(request.url).origin;
-  const savedNext = request.cookies?.get('wa_next')?.value;
-  const nextPath = !reason && (savedNext === '/set-homepage/upload' || savedNext === '/zhuye/upload')
+  const nextPath = !reason && request.cookies?.get('wa_next')?.value === '/set-homepage/upload'
     ? '/set-homepage/upload'
     : '/';
   const url = new URL(nextPath, origin);
