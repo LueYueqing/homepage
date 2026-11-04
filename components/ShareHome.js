@@ -78,6 +78,22 @@ export default function ShareHome() {
     }
   }
 
+  async function startShare(id) {
+    setBusy(true);
+    setMessage('');
+    setMessageBad(false);
+    try {
+      await postShare('/home/share/start', { id });
+      await load();
+      setMessage('已启用这个分享。原来的链接可以继续打开。');
+    } catch (error) {
+      setMessageBad(true);
+      setMessage(error.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function copyLink(share) {
     try {
       await navigator.clipboard.writeText(share.url);
@@ -119,7 +135,11 @@ export default function ShareHome() {
                 <button className="share-btn danger" type="button" onClick={() => stopShare(share.id)} disabled={busy}>
                   停止分享
                 </button>
-              ) : null}
+              ) : (
+                <button className="share-btn primary" type="button" onClick={() => startShare(share.id)} disabled={busy}>
+                  启用分享
+                </button>
+              )}
             </div>
           </article>
         ))}
