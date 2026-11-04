@@ -301,7 +301,7 @@ function consolejs(uiData){
         }
         document.getElementById('share-link-note').textContent=data.reused
             ? '这是你正在使用的分享链接。要新建或停止，请打开「分享主页」。'
-            : '已生成分享链接。没有登录的朋友打开后，会在这个网址导航首页轮播你上传的壁纸。';
+            : '已生成分享链接。别人打开后，壁纸库里会出现「分享」，可以预览和轮播你上传的壁纸。';
         document.getElementById('share-link-input').value=data.url||'';
         document.getElementById('share-link-stat').textContent=data.open_count
             ? ('已打开 '+data.open_count+' 次'+(data.last_opened_at ? '，最近 '+data.last_opened_at : ''))
@@ -939,7 +939,7 @@ $('#console-title-box').click(function(){
                 if(category && (data.category!==category || !wallpaperInCategory(data.bg_url, category))){
                     return;
                 }
-                if(readStoredCategory()!==category || (category==='custom' && window.__jfShare)){
+                if(readStoredCategory()!==category){
                     return;
                 }
                 var preview=data.thumb || thumbForWallpaper(data.bg_url);

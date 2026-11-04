@@ -107,9 +107,9 @@ export default function ShareHome() {
   return (
     <div className="share-panel">
       <p className="share-note">
-        把你上传的壁纸分享出去。对方没有登录时，这个网址导航的首页会轮播
+        把你上传的壁纸分享出去。别人打开链接后，壁纸库里会出现「分享」，可以预览和轮播
         <a href="/set-homepage/upload">上传壁纸</a>
-        里的图片，也可以换一张。对方登录后，只看自己的主页。
+        里的图片。已经登录的人也一样，他的「自选」仍然只放他自己的壁纸。
       </p>
       <button className="share-btn primary" type="button" onClick={createShare} disabled={busy}>
         创建分享链接

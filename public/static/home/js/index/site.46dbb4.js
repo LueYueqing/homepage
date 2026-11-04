@@ -91,24 +91,6 @@ function site(){
         document.body.appendChild(box);
     }
 
-    function noteOwnShareOpen(){
-        var token=shareQueryToken();
-        if(!token){
-            return;
-        }
-        var fd=new FormData();
-        fd.append('token', token);
-        fd.append('count', '1');
-        var req=new XMLHttpRequest();
-        req.open('POST','/home/share/visit',true);
-        req.onreadystatechange=function(){
-            if(req.readyState===4 && req.status===200){
-                history.replaceState(null, '', location.pathname+location.hash);
-            }
-        };
-        req.send(fd);
-    }
-
     function prepareShare(done){
         var token=shareQueryToken();
         if(!token && !shareFlagOn()){
@@ -146,6 +128,10 @@ function site(){
                 return;
             }
             if(data.status==='active'){
+                if(Number(data.own)===1){
+                    done();
+                    return;
+                }
                 var name=data.name||'微信用户';
                 window.__jfShare={name:name};
                 var chosen=typeof readStoredCategory==='function' ? readStoredCategory() : '';
@@ -174,6 +160,9 @@ function site(){
         if(!id){
             return;
         }
+        if(window.__jfShare && typeof readStoredCategory==='function' && readStoredCategory()==='share'){
+            return;
+        }
         try{
             var data=JSON.parse(localStorage.getItem('jf_bg_ready')||'');
             var match=data && String(data.url||'').match(/\/whatab\/(\d+)\//);
@@ -184,15 +173,14 @@ function site(){
     }
 
     function openHome(iconsOnly){
-        if(iconsOnly || (userData && Number(userData['user_type'])===1)){
-            if(userData && Number(userData['user_type'])===1){
-                noteOwnShareOpen();
-                dropForeignReady();
-            }
-            toWriteSite(!!iconsOnly);
+        if(iconsOnly){
+            toWriteSite(true);
             return;
         }
         prepareShare(function(){
+            if(userData && Number(userData['user_type'])===1){
+                dropForeignReady();
+            }
             toWriteSite(false);
         });
     }
@@ -228,7 +216,10 @@ function site(){
                     window.__jfUser=userData||{user_type:0};
                     if(userData && userData['user_type']==1){
                         if(userData['bg_category'] && typeof writeStoredCategory==='function'){
-                            writeStoredCategory(userData['bg_category']);
+                            var localCategory=typeof readStoredCategory==='function' ? readStoredCategory() : '';
+                            if(!(localCategory==='share' && (shareQueryToken() || shareFlagOn()))){
+                                writeStoredCategory(userData['bg_category']);
+                            }
                         }
                         if(Array.isArray(userData['nav_categories']) && typeof writeNavCategories==='function'){
                             writeNavCategories(userData['nav_categories']);
