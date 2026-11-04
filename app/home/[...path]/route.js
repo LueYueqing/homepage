@@ -12,6 +12,7 @@ import {
   markUserBackgroundUsed,
   peekUserBackground,
   removeUserBackground,
+  replaceUserBackground,
   takeNextUserBackground,
 } from '../../../lib/backgrounds';
 import { createAlipayPayment, createWechatPayment, paymentReady, syncVipOrder } from '../../../lib/pay';
@@ -560,6 +561,23 @@ async function handle(request, context) {
   }
   if (key === '/home/bg/upload') {
     return handleBackgroundUpload(request, user);
+  }
+  if (key === '/home/bg/crop') {
+    if (!user) return NextResponse.json({ error: '请先微信登录' }, { status: 401 });
+    const fields = await readFields(request);
+    try {
+      const saved = await replaceUserBackground(user.id, fields.id, {
+        x: fields.x,
+        y: fields.y,
+        width: fields.width,
+        height: fields.height,
+      });
+      return NextResponse.json({ success: 1, url: saved.url });
+    } catch (error) {
+      const status = error.status || 500;
+      const message = status === 500 ? '裁剪失败，请稍后再试' : (error.message || '裁剪失败');
+      return NextResponse.json({ error: message }, { status });
+    }
   }
   if (key === '/home/bg/remove') {
     if (!user) return NextResponse.json({ error: '请先微信登录' }, { status: 401 });

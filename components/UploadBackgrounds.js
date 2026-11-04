@@ -1,9 +1,130 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const FREE_LIMIT = 20;
 const PAGE_SIZE = 48;
+
+function cropFrame(width, height, ratio) {
+  const fittedWidth = height * ratio;
+  if (Math.abs(width - fittedWidth) <= 2) {
+    return { width, height, axis: '', max: 0 };
+  }
+  if (width > fittedWidth) {
+    return { width: fittedWidth, height, axis: 'x', max: width - fittedWidth };
+  }
+  const fittedHeight = width / ratio;
+  return { width, height: fittedHeight, axis: 'y', max: height - fittedHeight };
+}
+
+function WallpaperCrop({ image, ratio, busy, error, onClose, onApply }) {
+  const [natural, setNatural] = useState(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const drag = useRef(null);
+  const frame = natural ? cropFrame(natural.width, natural.height, ratio) : null;
+  const scale = natural
+    ? Math.min(
+      Math.max(280, window.innerWidth - 64) / natural.width,
+      Math.max(280, window.innerHeight - 64) / natural.height,
+    )
+    : 1;
+
+  useEffect(() => {
+    function onKey(event) {
+      if (event.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  function onLoad(event) {
+    const width = event.currentTarget.naturalWidth;
+    const height = event.currentTarget.naturalHeight;
+    const next = cropFrame(width, height, ratio);
+    setNatural({ width, height });
+    setOffset({
+      x: next.axis === 'x' ? next.max / 2 : 0,
+      y: next.axis === 'y' ? next.max / 2 : 0,
+    });
+  }
+
+  function onPointerDown(event) {
+    if (!frame || !frame.axis) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    drag.current = {
+      x: event.clientX,
+      y: event.clientY,
+      origin: frame.axis === 'x' ? offset.x : offset.y,
+      scale,
+      axis: frame.axis,
+      max: frame.max,
+    };
+  }
+
+  function onPointerMove(event) {
+    const current = drag.current;
+    if (!current) return;
+    const delta = current.axis === 'x'
+      ? (event.clientX - current.x) / current.scale
+      : (event.clientY - current.y) / current.scale;
+    const next = Math.min(current.max, Math.max(0, current.origin + delta));
+    setOffset((value) => (current.axis === 'x' ? { ...value, x: next } : { ...value, y: next }));
+  }
+
+  function onPointerUp() {
+    drag.current = null;
+  }
+
+  const box = frame ? {
+    left: offset.x * scale,
+    top: offset.y * scale,
+    width: frame.width * scale,
+    height: frame.height * scale,
+  } : null;
+
+  return (
+    <div className="crop-layer" role="dialog" aria-modal="true" aria-label="按首页比例裁剪">
+      <div className="crop-stage" style={natural ? { width: natural.width * scale, height: natural.height * scale } : undefined}>
+        <img
+          src={image.url}
+          alt=""
+          draggable="false"
+          onLoad={onLoad}
+          style={natural ? {
+            width: natural.width * scale,
+            height: natural.height * scale,
+            maxWidth: 'none',
+            maxHeight: 'none',
+          } : undefined}
+        />
+        {box ? (
+          <div
+            className={`crop-box${frame.axis ? ` ${frame.axis}` : ''}`}
+            style={box}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+          />
+        ) : null}
+        <button type="button" className="crop-close" onClick={onClose}>关闭</button>
+        <button
+          type="button"
+          className="crop-apply"
+          disabled={busy || !frame}
+          onClick={() => onApply({
+            x: offset.x,
+            y: offset.y,
+            width: frame.width,
+            height: frame.height,
+          })}
+        >
+          {busy ? '裁剪中…' : '按比例裁剪'}
+        </button>
+        {error ? <p className="crop-error">{error}</p> : null}
+      </div>
+    </div>
+  );
+}
 
 export default function UploadBackgrounds() {
   const [ready, setReady] = useState(false);
@@ -21,6 +142,8 @@ export default function UploadBackgrounds() {
   const [qr, setQr] = useState('');
   const [orderNo, setOrderNo] = useState('');
   const [page, setPage] = useState(1);
+  const [viewer, setViewer] = useState(null);
+  const [cropError, setCropError] = useState('');
 
   function applyAccount(data) {
     setLoggedIn(Boolean(data.logged_in));
@@ -130,6 +253,41 @@ export default function UploadBackgrounds() {
     await load(true).catch(() => {});
     setMessage('上传成功。到首页壁纸库选择「自选」即可使用');
     setBusy(false);
+  }
+
+  function openCrop(image) {
+    setCropError('');
+    setViewer({
+      image,
+      ratio: window.innerWidth / Math.max(window.innerHeight, 1),
+    });
+  }
+
+  async function applyCrop(rect) {
+    if (!viewer) return;
+    setBusy(true);
+    setCropError('');
+    try {
+      const body = new FormData();
+      body.append('id', String(viewer.image.id));
+      body.append('x', String(Math.round(rect.x)));
+      body.append('y', String(Math.round(rect.y)));
+      body.append('width', String(Math.round(rect.width)));
+      body.append('height', String(Math.round(rect.height)));
+      const response = await fetch('/home/bg/crop', { method: 'POST', body });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        setCropError(data.error || '裁剪失败，请稍后再试');
+        return;
+      }
+      setViewer(null);
+      await load(true).catch(() => {});
+      setMessage('已按首页比例裁剪，并覆盖原来的图片');
+    } catch {
+      setCropError('裁剪失败，请稍后再试');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function removeImage(id) {
@@ -264,13 +422,23 @@ export default function UploadBackgrounds() {
       {renderPager()}
       <div className="upload-grid">
         {pageImages.map((image) => (
-          <div className="upload-card" key={image.id}>
+          <div className="upload-card" key={image.id} onClick={() => openCrop(image)}>
             <img src={image.url} alt="" />
-            <button type="button" disabled={busy} onClick={() => removeImage(image.id)}>删除</button>
+            <button type="button" disabled={busy} onClick={(event) => { event.stopPropagation(); removeImage(image.id); }}>删除</button>
           </div>
         ))}
       </div>
       {renderPager()}
+      {viewer ? (
+        <WallpaperCrop
+          image={viewer.image}
+          ratio={viewer.ratio}
+          busy={busy}
+          error={cropError}
+          onClose={() => { if (!busy) setViewer(null); }}
+          onApply={(rect) => applyCrop(rect).catch(() => setCropError('裁剪失败，请稍后再试'))}
+        />
+      ) : null}
     </div>
   );
 }

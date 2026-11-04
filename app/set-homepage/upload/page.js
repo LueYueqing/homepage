@@ -79,6 +79,59 @@ export default function UploadPage() {
           display: block;
           width: 100%;
           height: auto;
+          cursor: pointer;
+        }
+        .crop-layer {
+          position: fixed;
+          inset: 0;
+          z-index: 80;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0,0,0,0.72);
+        }
+        .crop-stage {
+          position: relative;
+          max-width: calc(100vw - 64px);
+          max-height: calc(100vh - 64px);
+        }
+        .crop-stage > img {
+          display: block;
+          max-width: calc(100vw - 64px);
+          max-height: calc(100vh - 64px);
+          user-select: none;
+        }
+        .crop-box {
+          position: absolute;
+          z-index: 2;
+          box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+          outline: 2px solid #fff;
+          outline-offset: -2px;
+          touch-action: none;
+        }
+        .crop-box.x { cursor: ew-resize; }
+        .crop-box.y { cursor: ns-resize; }
+        .crop-close, .crop-apply {
+          position: absolute;
+          z-index: 3;
+          top: 12px;
+          border: 0;
+          border-radius: 100px;
+          padding: 8px 16px;
+          cursor: pointer;
+        }
+        .crop-close { left: 12px; background: rgba(255,255,255,0.92); color: #333; }
+        .crop-apply { right: 12px; background: #2c7bf6; color: #fff; }
+        .crop-apply:disabled { opacity: 0.45; cursor: default; }
+        .crop-error {
+          position: absolute;
+          z-index: 3;
+          left: 12px;
+          right: 12px;
+          bottom: 12px;
+          margin: 0;
+          color: #fff;
+          text-align: center;
         }
         .upload-pager {
           display: flex;
