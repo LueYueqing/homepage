@@ -5,6 +5,7 @@ import { getPool } from '../../../lib/db';
 import {
   CUSTOM_BG_CATEGORY,
   addUserBackground,
+  backfillUserThumbnails,
   countUserBackgrounds,
   imageKind,
   listUserBackgroundThumbs,
@@ -514,6 +515,15 @@ async function handle(request, context) {
   }
   if (key === '/home/bg/categories') {
     return NextResponse.json(await listCategories(user));
+  }
+  if (key === '/home/bg/thumbs') {
+    if (!user) return NextResponse.json({ error: '请先微信登录' }, { status: 401 });
+    const fields = await readFields(request);
+    try {
+      return NextResponse.json(await backfillUserThumbnails(user.id, fields.after));
+    } catch {
+      return NextResponse.json({ error: '缩略图生成失败，请稍后再试' }, { status: 500 });
+    }
   }
   if (key === '/home/bg/mine') {
     if (!user) {

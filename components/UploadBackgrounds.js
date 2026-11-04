@@ -179,9 +179,51 @@ export default function UploadBackgrounds() {
     return data;
   }
 
+  const thumbsStarted = useRef(false);
+  const pageAlive = useRef(true);
+  const shownPage = Math.min(page, Math.max(1, Math.ceil(images.length / PAGE_SIZE) || 1));
+  const shownMissing = images
+    .slice((shownPage - 1) * PAGE_SIZE, shownPage * PAGE_SIZE)
+    .some((image) => image && !image.thumb);
+
+  useEffect(() => {
+    pageAlive.current = true;
+    return () => {
+      pageAlive.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     load().catch(() => setMessage('读取失败，请刷新页面再试'));
   }, []);
+
+  useEffect(() => {
+    if (!shownMissing || thumbsStarted.current) return undefined;
+    thumbsStarted.current = true;
+    async function fillMissingThumbs() {
+      let after = 0;
+      for (let step = 0; step < 30 && pageAlive.current; step += 1) {
+        const response = await fetch('/home/bg/thumbs', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ after }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!pageAlive.current || !response.ok) return;
+        const updated = Array.isArray(data.updated) ? data.updated : [];
+        if (updated.length) {
+          setImages((list) => list.map((item) => {
+            const next = updated.find((row) => Number(row.id) === item.id);
+            return next && next.thumb ? { ...item, thumb: next.thumb } : item;
+          }));
+        }
+        after = Number(data.after || after);
+        if (!data.batch || !data.remaining) return;
+      }
+    }
+    fillMissingThumbs().catch(() => {});
+    return undefined;
+  }, [shownMissing]);
 
   useEffect(() => {
     const saved = window.sessionStorage.getItem('wa_vip_order') || '';
