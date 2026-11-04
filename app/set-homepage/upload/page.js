@@ -111,6 +111,24 @@ export default function UploadPage() {
         }
         .crop-box.x { cursor: ew-resize; }
         .crop-box.y { cursor: ns-resize; }
+        .crop-nav {
+          position: absolute;
+          z-index: 4;
+          top: 50%;
+          width: 42px;
+          height: 42px;
+          margin-top: -21px;
+          border: 0;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.92);
+          color: #333;
+          font-size: 28px;
+          line-height: 42px;
+          cursor: pointer;
+        }
+        .crop-nav.prev { left: 12px; }
+        .crop-nav.next { right: 12px; }
+        .crop-nav:disabled { opacity: 0.35; cursor: default; }
         .crop-close, .crop-apply {
           position: absolute;
           z-index: 3;

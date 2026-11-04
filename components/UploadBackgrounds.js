@@ -17,7 +17,7 @@ function cropFrame(width, height, ratio) {
   return { width, height: fittedHeight, axis: 'y', max: height - fittedHeight };
 }
 
-function WallpaperCrop({ image, ratio, busy, error, onClose, onApply }) {
+function WallpaperCrop({ image, ratio, busy, error, hasPrev, hasNext, onPrev, onNext, onClose, onApply }) {
   const [natural, setNatural] = useState(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const drag = useRef(null);
@@ -28,6 +28,12 @@ function WallpaperCrop({ image, ratio, busy, error, onClose, onApply }) {
       Math.max(280, window.innerHeight - 64) / natural.height,
     )
     : 1;
+
+  useEffect(() => {
+    setNatural(null);
+    setOffset({ x: 0, y: 0 });
+    drag.current = null;
+  }, [image.id, image.url]);
 
   useEffect(() => {
     function onKey(event) {
@@ -86,6 +92,7 @@ function WallpaperCrop({ image, ratio, busy, error, onClose, onApply }) {
     <div className="crop-layer" role="dialog" aria-modal="true" aria-label="按首页比例裁剪">
       <div className="crop-stage" style={natural ? { width: natural.width * scale, height: natural.height * scale } : undefined}>
         <img
+          key={image.url}
           src={image.url}
           alt=""
           draggable="false"
@@ -106,6 +113,8 @@ function WallpaperCrop({ image, ratio, busy, error, onClose, onApply }) {
             onPointerUp={onPointerUp}
           />
         ) : null}
+        <button type="button" className="crop-nav prev" aria-label="上一张" disabled={!hasPrev || busy} onClick={onPrev}>‹</button>
+        <button type="button" className="crop-nav next" aria-label="下一张" disabled={!hasNext || busy} onClick={onNext}>›</button>
         <button type="button" className="crop-close" onClick={onClose}>关闭</button>
         <button
           type="button"
@@ -263,6 +272,18 @@ export default function UploadBackgrounds() {
     });
   }
 
+  function showNeighbor(step) {
+    if (busy || !viewer) return;
+    const index = images.findIndex((item) => item.id === viewer.image.id);
+    const image = images[index + step];
+    if (!image) return;
+    setCropError('');
+    setViewer({
+      image,
+      ratio: window.innerWidth / Math.max(window.innerHeight, 1),
+    });
+  }
+
   async function applyCrop(rect) {
     if (!viewer) return;
     setBusy(true);
@@ -276,13 +297,17 @@ export default function UploadBackgrounds() {
       body.append('height', String(Math.round(rect.height)));
       const response = await fetch('/home/bg/crop', { method: 'POST', body });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.success) {
+      if (!response.ok || !data.success || !data.url) {
         setCropError(data.error || '裁剪失败，请稍后再试');
         return;
       }
-      setViewer(null);
-      await load(true).catch(() => {});
-      setMessage('已按首页比例裁剪，并覆盖原来的图片');
+      const nextUrl = data.url;
+      const imageId = viewer.image.id;
+      setImages((list) => list.map((item) => (item.id === imageId ? { ...item, url: nextUrl } : item)));
+      setViewer((current) => (current && current.image.id === imageId
+        ? { ...current, image: { ...current.image, url: nextUrl } }
+        : current));
+      setCropError('');
     } catch {
       setCropError('裁剪失败，请稍后再试');
     } finally {
@@ -435,6 +460,10 @@ export default function UploadBackgrounds() {
           ratio={viewer.ratio}
           busy={busy}
           error={cropError}
+          hasPrev={images.some((item, index) => item.id === viewer.image.id && index > 0)}
+          hasNext={images.some((item, index) => item.id === viewer.image.id && index < images.length - 1)}
+          onPrev={() => showNeighbor(-1)}
+          onNext={() => showNeighbor(1)}
           onClose={() => { if (!busy) setViewer(null); }}
           onApply={(rect) => applyCrop(rect).catch(() => setCropError('裁剪失败，请稍后再试'))}
         />
