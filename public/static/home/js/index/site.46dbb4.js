@@ -148,10 +148,13 @@ function site(){
             if(data.status==='active'){
                 var name=data.name||'微信用户';
                 window.__jfShare={name:name};
-                if(typeof writeStoredCategory==='function'){
-                    writeStoredCategory('custom');
+                var chosen=typeof readStoredCategory==='function' ? readStoredCategory() : '';
+                if(token || !chosen || chosen==='custom'){
+                    if(typeof writeStoredCategory==='function'){
+                        writeStoredCategory('custom');
+                    }
+                    try{ localStorage.removeItem('jf_bg_ready'); }catch(e){}
                 }
-                try{ localStorage.removeItem('jf_bg_ready'); }catch(e){}
                 if(token){
                     var seen='';
                     try{ seen=localStorage.getItem('wa_share_seen_'+token)||''; }catch(e){}

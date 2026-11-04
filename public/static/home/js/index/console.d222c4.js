@@ -7,7 +7,7 @@ function isUserWallpaper(url){
     return /^https:\/\/[^?#]+\/whatab\/[0-9]+\/[a-f0-9]{16}\.(jpg|png|webp)$/i.test(String(url||'').split('?')[0]);
 }
 function isLibraryWallpaper(url){
-    return /^https:\/\/[^/?#]+\/wallpapers\/[a-z0-9-]+\/[a-f0-9]{16}\.jpg$/i.test(String(url||'').split('?')[0]);
+    return /\/wallpapers\/[a-z0-9-]+\/[a-f0-9]{16}\.jpg$/i.test(String(url||'').split('?')[0]);
 }
 function wallpaperInCategory(url, category){
     if(category==='custom') return isUserWallpaper(url);
@@ -922,7 +922,7 @@ $('#console-title-box').click(function(){
                 }
                 var img=new Image();
                 img.onload=function(){
-                    if(readStoredCategory()!==category || window.__jfShare){
+                    if(readStoredCategory()!==category || (category==='custom' && window.__jfShare)){
                         return;
                     }
                     try{
