@@ -32,6 +32,8 @@ function Pager({ offset, total, pageSize, onPage }) {
 export default function AdminPanel({ name }) {
   const [tab, setTab] = useState('sites');
   const [form, setForm] = useState(blankSite);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [collecting, setCollecting] = useState(false);
   const [sites, setSites] = useState([]);
   const [siteTotal, setSiteTotal] = useState(0);
   const [siteOffset, setSiteOffset] = useState(0);
@@ -117,6 +119,51 @@ export default function AdminPanel({ name }) {
     }));
   }
 
+  function openEditor(site) {
+    setForm(site ? { ...blankSite(), ...site, categories: [...(site.categories || [])] } : blankSite());
+    setEditorOpen(true);
+    say('');
+  }
+
+  function closeEditor() {
+    if (busy || collecting) return;
+    setEditorOpen(false);
+    setForm(blankSite());
+  }
+
+  function dismissEditor() {
+    setEditorOpen(false);
+    setForm(blankSite());
+  }
+
+  async function collectIcon(force) {
+    const url = form.url.trim();
+    if (!url) {
+      say('请先填写网址');
+      return;
+    }
+    if (!force && form.icon.trim()) return;
+    setCollecting(true);
+    say('');
+    try {
+      const data = await request('/home/site/getIcon', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      if (data.error || !data.icon) {
+        say(data.error || '没有采集到图标，可以手动填写地址');
+        return;
+      }
+      setForm((current) => ({ ...current, icon: data.icon }));
+      say('已从网站图标采集地址', true);
+    } catch (error) {
+      say(error.message);
+    } finally {
+      setCollecting(false);
+    }
+  }
+
   async function saveSite(event) {
     event.preventDefault();
     setBusy(true);
@@ -128,6 +175,7 @@ export default function AdminPanel({ name }) {
         body: JSON.stringify(form),
       });
       setForm(blankSite());
+      setEditorOpen(false);
       say('网址已保存', true);
       setRevision((value) => value + 1);
     } catch (error) {
@@ -147,7 +195,7 @@ export default function AdminPanel({ name }) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ action: 'remove', id: site.id }),
       });
-      if (form.id === site.id) setForm(blankSite());
+      if (form.id === site.id) dismissEditor();
       say('网址已删除', true);
       setRevision((value) => value + 1);
     } catch (error) {
@@ -235,50 +283,66 @@ export default function AdminPanel({ name }) {
         <button type="button" className={tab === 'sites' ? 'admin-tab active' : 'admin-tab'} onClick={() => setTab('sites')}>网址</button>
         <button type="button" className={tab === 'wallpapers' ? 'admin-tab active' : 'admin-tab'} onClick={() => setTab('wallpapers')}>壁纸</button>
       </div>
-      {message ? <p className={ok ? 'admin-message ok' : 'admin-message'}>{message}</p> : null}
+      {!editorOpen && message ? <p className={ok ? 'admin-message ok' : 'admin-message'}>{message}</p> : null}
 
       {tab === 'sites' ? (
         <>
           <p className="admin-note">首页图标使用已启用的前 18 个，按排序数字从小到大。分类列表按热度从高到低。</p>
-          <form className="admin-form" onSubmit={saveSite}>
-            <div className="admin-grid">
-              <label>名称<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required /></label>
-              <label>网址<input value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} required /></label>
-              <label>图标地址<input value={form.icon} onChange={(event) => setForm({ ...form, icon: event.target.value })} /></label>
-              <label>关键词<input value={form.keyword} onChange={(event) => setForm({ ...form, keyword: event.target.value })} /></label>
-            </div>
-            <label>说明<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={2} /></label>
-            <div className="admin-checks">
-              {navCategories.map((item) => (
-                <label key={item.category}>
-                  <input
-                    type="checkbox"
-                    checked={form.categories.includes(item.category)}
-                    onChange={() => toggleCategory(item.category)}
-                  />
-                  {item.category_note}
+          <div className="admin-actions">
+            <button className="admin-btn primary" type="button" onClick={() => openEditor(null)}>添加网址</button>
+          </div>
+          {editorOpen ? (
+            <div className="admin-modal" onClick={closeEditor}>
+              <form className="admin-dialog admin-form" onClick={(event) => event.stopPropagation()} onSubmit={saveSite}>
+                <h2>{form.id ? '修改网址' : '添加网址'}</h2>
+                {message ? <p className={ok ? 'admin-message ok' : 'admin-message'}>{message}</p> : null}
+                <div className="admin-grid">
+                  <label>名称<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required /></label>
+                  <label>网址<input value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} onBlur={() => collectIcon(false)} required /></label>
+                </div>
+                <label>图标地址
+                  <span className="admin-icon-line">
+                    <input value={form.icon} onChange={(event) => setForm({ ...form, icon: event.target.value })} placeholder="可手动填写，或从网站采集" />
+                    <button className="admin-btn" type="button" disabled={collecting || busy} onClick={() => collectIcon(true)}>采集图标</button>
+                  </span>
                 </label>
-              ))}
+                <p className="admin-note">采集会读取网页里的图标链接，没有时再试 /favicon.ico。</p>
+                {form.icon ? <img className="admin-icon-preview" src={form.icon} alt="" /> : null}
+                <label>关键词<input value={form.keyword} onChange={(event) => setForm({ ...form, keyword: event.target.value })} /></label>
+                <label>说明<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={2} /></label>
+                <div className="admin-checks">
+                  {navCategories.map((item) => (
+                    <label key={item.category}>
+                      <input
+                        type="checkbox"
+                        checked={form.categories.includes(item.category)}
+                        onChange={() => toggleCategory(item.category)}
+                      />
+                      {item.category_note}
+                    </label>
+                  ))}
+                </div>
+                <div className="admin-grid">
+                  {fields.sort_order !== false ? (
+                    <label>排序<input type="number" min="0" max="9999" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} /></label>
+                  ) : null}
+                  {fields.popularity !== false ? (
+                    <label>热度<input type="number" min="0" value={form.popularity} onChange={(event) => setForm({ ...form, popularity: event.target.value })} /></label>
+                  ) : null}
+                </div>
+                {fields.is_enabled !== false ? (
+                  <label className="admin-inline">
+                    <input type="checkbox" checked={form.is_enabled} onChange={(event) => setForm({ ...form, is_enabled: event.target.checked })} />
+                    启用
+                  </label>
+                ) : null}
+                <div className="admin-actions">
+                  <button className="admin-btn primary" disabled={busy || collecting} type="submit">{form.id ? '保存修改' : '添加网址'}</button>
+                  <button className="admin-btn" type="button" onClick={closeEditor}>取消</button>
+                </div>
+              </form>
             </div>
-            <div className="admin-grid">
-              {fields.sort_order !== false ? (
-                <label>排序<input type="number" min="0" max="9999" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} /></label>
-              ) : null}
-              {fields.popularity !== false ? (
-                <label>热度<input type="number" min="0" value={form.popularity} onChange={(event) => setForm({ ...form, popularity: event.target.value })} /></label>
-              ) : null}
-            </div>
-            {fields.is_enabled !== false ? (
-              <label className="admin-inline">
-                <input type="checkbox" checked={form.is_enabled} onChange={(event) => setForm({ ...form, is_enabled: event.target.checked })} />
-                启用
-              </label>
-            ) : null}
-            <div className="admin-actions">
-              <button className="admin-btn primary" disabled={busy} type="submit">{form.id ? '保存修改' : '添加网址'}</button>
-              {form.id ? <button className="admin-btn" type="button" onClick={() => setForm(blankSite())}>取消编辑</button> : null}
-            </div>
-          </form>
+          ) : null}
           <form className="admin-search" onSubmit={(event) => {
             event.preventDefault();
             setSiteOffset(0);
@@ -302,7 +366,7 @@ export default function AdminPanel({ name }) {
                   )).join('、')}</span>
                 </div>
                 <div className="admin-actions">
-                  <button className="admin-btn" type="button" onClick={() => setForm({ ...blankSite(), ...site, categories: [...site.categories] })}>编辑</button>
+                  <button className="admin-btn" type="button" onClick={() => openEditor(site)}>编辑</button>
                   <button className="admin-btn danger" type="button" disabled={busy} onClick={() => removeSite(site)}>删除</button>
                 </div>
               </article>

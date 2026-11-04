@@ -75,6 +75,30 @@ function Frame({ children }) {
         .admin-photo img { width: 100%; height: 120px; object-fit: contain; background: #111; border-radius: 8px; }
         .admin-pager { display: flex; justify-content: center; align-items: center; gap: 14px; margin: 16px 0; color: #666; }
         .admin-panel a { color: #2c7bf6; }
+        .admin-modal {
+          position: fixed;
+          inset: 0;
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+          background: rgba(0, 0, 0, 0.45);
+        }
+        .admin-dialog {
+          width: min(720px, 100%);
+          max-height: calc(100vh - 48px);
+          overflow: auto;
+          box-sizing: border-box;
+          padding: 20px;
+          background: #fff;
+          border-radius: 12px;
+        }
+        .admin-dialog h2 { margin: 0 0 14px; font-size: 18px; color: #222; }
+        .admin-icon-line { display: flex; gap: 8px; align-items: center; }
+        .admin-icon-line input { flex: 1; }
+        .admin-icon-line .admin-btn { flex: none; margin-top: 4px; }
+        .admin-icon-preview { width: 40px; height: 40px; object-fit: contain; background: #f3f3f3; border-radius: 8px; }
         @media (max-width: 720px) {
           .admin-grid, .admin-site { grid-template-columns: 1fr; }
         }
