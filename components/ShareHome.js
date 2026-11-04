@@ -17,6 +17,7 @@ export default function ShareHome() {
   const [shares, setShares] = useState([]);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageBad, setMessageBad] = useState(false);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(0);
 
@@ -47,11 +48,13 @@ export default function ShareHome() {
   async function createShare() {
     setBusy(true);
     setMessage('');
+    setMessageBad(false);
     try {
       await postShare('/home/share/create');
       await load();
       setMessage('已生成新的分享链接。');
     } catch (error) {
+      setMessageBad(true);
       setMessage(error.message);
     } finally {
       setBusy(false);
@@ -62,11 +65,13 @@ export default function ShareHome() {
     if (!window.confirm('停止后，打开这个链接的人会看到分享已取消。确定停止？')) return;
     setBusy(true);
     setMessage('');
+    setMessageBad(false);
     try {
       await postShare('/home/share/stop', { id });
       await load();
       setMessage('已停止这个分享。');
     } catch (error) {
+      setMessageBad(true);
       setMessage(error.message);
     } finally {
       setBusy(false);
@@ -78,6 +83,7 @@ export default function ShareHome() {
       await navigator.clipboard.writeText(share.url);
       setCopied(share.id);
     } catch {
+      setMessageBad(true);
       setMessage('复制失败，请手动选择链接。');
     }
   }
@@ -92,7 +98,7 @@ export default function ShareHome() {
       <button className="share-btn primary" type="button" onClick={createShare} disabled={busy}>
         创建分享链接
       </button>
-      {message ? <p className="share-message">{message}</p> : null}
+      {message ? <p className={messageBad ? 'share-message bad' : 'share-message'}>{message}</p> : null}
       {!ready ? <p className="share-note">正在读取分享链接</p> : null}
       {ready && !shares.length ? <p className="share-note">还没有分享链接。</p> : null}
       <div className="share-list">

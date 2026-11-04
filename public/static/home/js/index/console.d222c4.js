@@ -313,7 +313,7 @@ function consolejs(uiData){
                 showLoginBtn();
                 return;
             }
-            showmsg(data.error||'暂时无法创建分享');
+            showmsg(data.error||'暂时无法创建分享', 4000);
         };
         req.send(fd);
     });

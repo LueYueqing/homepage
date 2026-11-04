@@ -19,6 +19,7 @@ function Frame({ children }) {
         .share-panel { color: #333; }
         .share-note { color: #666; line-height: 1.7; }
         .share-message { color: #067647; }
+        .share-message.bad { color: #b42318; }
         .share-btn {
           border: 0;
           border-radius: 100px;

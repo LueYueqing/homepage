@@ -1,7 +1,7 @@
 const LINKS = [
   ['/', '首页'],
   ['/about', '关于我们'],
-  ['/contact', '联系'],
+  ['/contact', '联系我们'],
   ['/guide', '使用指南'],
   ['/set-homepage/upload', '上传壁纸'],
   ['/share', '分享主页'],
