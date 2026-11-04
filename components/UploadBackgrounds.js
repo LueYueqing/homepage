@@ -17,7 +17,7 @@ function cropFrame(width, height, ratio) {
   return { width, height: fittedHeight, axis: 'y', max: height - fittedHeight };
 }
 
-function WallpaperCrop({ image, ratio, busy, error, hasPrev, hasNext, onPrev, onNext, onClose, onApply }) {
+function WallpaperCrop({ image, ratio, busy, error, hasPrev, hasNext, onPrev, onNext, onClose, onApply, onDelete }) {
   const [natural, setNatural] = useState(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const drag = useRef(null);
@@ -116,19 +116,26 @@ function WallpaperCrop({ image, ratio, busy, error, hasPrev, hasNext, onPrev, on
         <button type="button" className="crop-nav prev" aria-label="上一张" disabled={!hasPrev || busy} onClick={onPrev}>‹</button>
         <button type="button" className="crop-nav next" aria-label="下一张" disabled={!hasNext || busy} onClick={onNext}>›</button>
         <button type="button" className="crop-close" onClick={onClose}>关闭</button>
-        <button
-          type="button"
-          className="crop-apply"
-          disabled={busy || !frame}
-          onClick={() => onApply({
-            x: offset.x,
-            y: offset.y,
-            width: frame.width,
-            height: frame.height,
-          })}
-        >
-          {busy ? '裁剪中…' : '按比例裁剪'}
-        </button>
+        <div className="crop-actions">
+          <button
+            type="button"
+            className="crop-apply"
+            disabled={busy || !frame}
+            onClick={() => onApply({
+              x: offset.x,
+              y: offset.y,
+              width: frame.width,
+              height: frame.height,
+            })}
+          >
+            {busy ? '裁剪中…' : '按比例裁剪'}
+          </button>
+          <button type="button" className="crop-delete" aria-label="删除这张图片" disabled={busy} onClick={onDelete}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm-3 6h12l-1 12H7L6 9z" />
+            </svg>
+          </button>
+        </div>
         {error ? <p className="crop-error">{error}</p> : null}
       </div>
     </div>
@@ -315,6 +322,40 @@ export default function UploadBackgrounds() {
     }
   }
 
+  async function deleteViewerImage() {
+    if (!viewer || busy) return;
+    if (!window.confirm('删除这张背景图？')) return;
+    const imageId = viewer.image.id;
+    const index = images.findIndex((item) => item.id === imageId);
+    setBusy(true);
+    setCropError('');
+    try {
+      const body = new FormData();
+      body.append('id', String(imageId));
+      const response = await fetch('/home/bg/remove', { method: 'POST', body });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        setCropError(data.error || '删除失败，请稍后再试');
+        return;
+      }
+      const rest = images.filter((item) => item.id !== imageId);
+      setImages(rest);
+      const neighbor = rest[index] || rest[index - 1];
+      if (neighbor) {
+        setViewer({
+          image: neighbor,
+          ratio: window.innerWidth / Math.max(window.innerHeight, 1),
+        });
+      } else {
+        setViewer(null);
+      }
+    } catch {
+      setCropError('删除失败，请稍后再试');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function removeImage(id) {
     setBusy(true);
     setMessage('');
@@ -466,6 +507,7 @@ export default function UploadBackgrounds() {
           onNext={() => showNeighbor(1)}
           onClose={() => { if (!busy) setViewer(null); }}
           onApply={(rect) => applyCrop(rect).catch(() => setCropError('裁剪失败，请稍后再试'))}
+          onDelete={() => deleteViewerImage().catch(() => setCropError('删除失败，请稍后再试'))}
         />
       ) : null}
     </div>

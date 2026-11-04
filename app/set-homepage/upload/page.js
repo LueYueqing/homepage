@@ -130,17 +130,43 @@ export default function UploadPage() {
         .crop-nav.next { right: 12px; }
         .crop-nav:disabled { opacity: 0.35; cursor: default; }
         .crop-close, .crop-apply {
-          position: absolute;
-          z-index: 3;
-          top: 12px;
           border: 0;
           border-radius: 100px;
           padding: 8px 16px;
           cursor: pointer;
         }
-        .crop-close { left: 12px; background: rgba(255,255,255,0.92); color: #333; }
-        .crop-apply { right: 12px; background: #2c7bf6; color: #fff; }
-        .crop-apply:disabled { opacity: 0.45; cursor: default; }
+        .crop-close {
+          position: absolute;
+          z-index: 4;
+          top: 12px;
+          left: 12px;
+          background: rgba(255,255,255,0.92);
+          color: #333;
+        }
+        .crop-actions {
+          position: absolute;
+          z-index: 4;
+          top: 12px;
+          right: 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .crop-apply { background: #2c7bf6; color: #fff; }
+        .crop-apply:disabled, .crop-delete:disabled { opacity: 0.45; cursor: default; }
+        .crop-delete {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          padding: 0;
+          border: 0;
+          border-radius: 50%;
+          background: #d92d20;
+          cursor: pointer;
+        }
+        .crop-delete svg { width: 18px; height: 18px; fill: #fff; display: block; }
         .crop-error {
           position: absolute;
           z-index: 3;
