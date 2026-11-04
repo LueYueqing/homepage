@@ -624,9 +624,12 @@ function searchjs(engineData){
 		    		return false;						    		
 		    	}
 		    	else if(JSON.parse(req.response)['success']){
-			    	showmsg(JSON.parse(req.response)['success']);
-					oEngineImg.icontype=JSON.parse(req.response)['icontype'];
-					oEngineImg.src=JSON.parse(req.response)['icon'];				    		
+			    	var iconData=JSON.parse(req.response);
+			    	showmsg(iconData['success']);
+					if(iconData['icon']){
+						oEngineImg.icontype=iconData['icontype'];
+						oEngineImg.src=iconData['icon'];
+					}
 		    	}
 		    }
 		}

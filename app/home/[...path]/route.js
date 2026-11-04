@@ -18,6 +18,15 @@ import {
   takeNextUserBackground,
 } from '../../../lib/backgrounds';
 import { createAlipayPayment, createWechatPayment, paymentReady, syncVipOrder } from '../../../lib/pay';
+import { fetchSiteMeta } from '../../../lib/site-meta';
+import {
+  createUserSite,
+  deleteUserSite,
+  editUserSite,
+  listUserSites,
+  resetUserSites,
+  sortUserSites,
+} from '../../../lib/user-sites';
 import { isLibraryWallpaperUrl, isUserBackgroundUrl } from '../../../lib/oss';
 import {
   destroySession,
@@ -188,6 +197,35 @@ function safeCategory(value) {
   if (!category) return '';
   if (!/^[a-z0-9-]{1,32}$/.test(category)) return '';
   return category;
+}
+
+async function homepageSiteData(user, categories) {
+  if (user) {
+    try {
+      const personal = await listUserSites(user.id);
+      if (personal.length) return personal;
+    } catch {
+      /* 个人网址读失败时仍显示公共网址 */
+    }
+  }
+  return listNavSites(0, categories);
+}
+
+async function readSiteRequest(request) {
+  const type = request.headers.get('content-type') || '';
+  if (!type.includes('multipart')) return { data: await readFields(request), file: null };
+  try {
+    const form = await request.formData();
+    const data = {};
+    let file = null;
+    for (const [key, value] of form.entries()) {
+      if (typeof value === 'string') data[key] = value;
+      else if (value && Number(value.size) > 0 && typeof value.arrayBuffer === 'function') file = value;
+    }
+    return { data, file };
+  } catch {
+    return { data: {}, file: null };
+  }
 }
 
 async function readFields(request) {
@@ -510,7 +548,7 @@ async function handle(request, context) {
     const fields = await readFields(request);
     const requested = readCategoryList(fields.categories);
     const categories = requested.length ? requested : (user?.nav_categories || []);
-    data.siteData = await listNavSites(0, categories);
+    data.siteData = await homepageSiteData(user, categories);
     const response = NextResponse.json(data);
     const token = readSessionToken(request);
     if (user && token) response.cookies.set('wa_session', token, sessionCookieOptions());
@@ -553,10 +591,51 @@ async function handle(request, context) {
   }
   if (key === '/home/site/getsite') {
     const fields = await readFields(request);
+    const categories = readCategoryList(fields.categories);
     return NextResponse.json({
-      siteData: await listNavSites(0, readCategoryList(fields.categories)),
+      siteData: await homepageSiteData(user, categories.length ? categories : (user?.nav_categories || [])),
       uiData: data.uiData,
     });
+  }
+  if (key === '/home/site/getIcon') {
+    if (!user) return NextResponse.json({ error: '请先微信登录' });
+    const fields = await readFields(request);
+    return NextResponse.json(await fetchSiteMeta(fields.url));
+  }
+  if (key === '/home/site/create' || key === '/home/site/edit' || key === '/home/site/delete' || key === '/home/site/sort') {
+    if (!user) return NextResponse.json({ error: '请先微信登录' });
+    let fallback = [];
+    try {
+      fallback = await listNavSites(0, user.nav_categories || []);
+    } catch {
+      fallback = [];
+    }
+    try {
+      if (key === '/home/site/create' || key === '/home/site/edit') {
+        const { data: fields, file } = await readSiteRequest(request);
+        const saved = key === '/home/site/create'
+          ? await createUserSite(user.id, fields, file, fallback)
+          : await editUserSite(user.id, fields, file, fallback);
+        return NextResponse.json(saved);
+      }
+      const fields = await readFields(request);
+      if (key === '/home/site/delete') {
+        return NextResponse.json(await deleteUserSite(user.id, fields.sort, fallback));
+      }
+      return NextResponse.json(await sortUserSites(user.id, fields.sortarray, fallback));
+    } catch (error) {
+      return NextResponse.json({ error: error.expose ? error.message : '保存失败，请稍后再试' });
+    }
+  }
+  if (key === '/home/site/deleteallsite') {
+    if (!user) return NextResponse.json({ error: '请先微信登录' });
+    const fields = await readFields(request);
+    if (fields.deleteall !== 'real') return NextResponse.json({ error: '没有恢复默认网址' });
+    try {
+      return NextResponse.json(await resetUserSites(user.id));
+    } catch {
+      return NextResponse.json({ error: '恢复失败，请稍后再试' });
+    }
   }
   if (key === '/home/nav/categories') {
     return NextResponse.json(await listNavCategories());

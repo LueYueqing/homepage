@@ -441,11 +441,13 @@ function site(){
             var maxSort=$('.siteA').length;   //获得sort，当前网址个数
             var oEvent=ev||event;
             oEvent.preventDefault();
-            oNssUrlInput.value=null;
-            oNssNameInput.value=null;
+            oNssUrlInput.value='';
+            oNssNameInput.value='';
+            oNssiconfile.value='';
             //oNssIconInput.value=null;
             oNssImg.src="/static/home/images/defaultsicon/null.png";
             oNssImg.icontype=1;
+            rememberSiteDialog('', '');
             $('#siteSetBlackBg').fadeIn(300);
             $('#newSiteSetBox').animate({marginTop:"-150px"},300);
             oNssUrlInput.focus();            
@@ -591,9 +593,11 @@ function site(){
 					oEvent.preventDefault();
 					oNssUrlInput.value=this.parentNode.parentNode.href;
 					oNssNameInput.value=this.parentNode.parentNode.children[1].innerHTML;
+					oNssiconfile.value='';
 					//oNssIconInput.value=this.parentNode.children[0].children[0].getAttribute("src");
 					oNssImg.src=this.parentNode.children[0].getAttribute("src");
 					oNssImg.icontype=1;
+					rememberSiteDialog(normalizeSiteUrl(oNssUrlInput.value), oNssNameInput.value);
 
 					$('#siteSetBlackBg').fadeIn(300);
 					$('#newSiteSetBox').animate({marginTop:"-150px"},300);
@@ -712,34 +716,98 @@ function site(){
 	}
 
 
+	var siteDialogUrl='';
+	var siteDialogName='';
+	var lastFetchedUrl='';
+	var siteFetchSeq=0;
+
+	function normalizeSiteUrl(value){
+		var text=String(value||'').replace(/。/g,'.').trim();
+		if(!text){
+			return '';
+		}
+		if(!/^https?:\/\//i.test(text)){
+			text='https://'+text;
+		}
+		return text;
+	}
+
+	function rememberSiteDialog(url, name){
+		siteDialogUrl=url||'';
+		siteDialogName=name||'';
+		lastFetchedUrl=siteDialogUrl;
+		siteFetchSeq++;
+	}
+
+	function applySiteMeta(data, urlValue, announce){
+		if(data.error){
+			if(announce){
+				showmsg(data.error);
+			}else if(!oNssNameInput.value){
+				autoGetSiteTitle();
+			}
+			return;
+		}
+		if(data.title && (!oNssNameInput.value || (urlValue!==siteDialogUrl && oNssNameInput.value===siteDialogName))){
+			oNssNameInput.value=data.title;
+		}
+		if(data.icon && (Number(oNssImg.icontype)!==4 || urlValue!==siteDialogUrl)){
+			oNssImg.src=data.icon;
+			oNssImg.icontype=data.icontype||2;
+		}
+		if(announce && data.success){
+			showmsg(data.success);
+		}
+	}
+
+	function requestSiteMeta(announce){
+		var value=normalizeSiteUrl(oNssUrlInput.value);
+		oNssUrlInput.value=value;
+		if(!/[^\s]+\.[^\s]+/i.test(value)){
+			if(announce){
+				showmsg('获取图标失败！未输入网址或格式不正确');
+			}
+			return;
+		}
+		if(!announce && value===lastFetchedUrl){
+			return;
+		}
+		lastFetchedUrl=value;
+		var seq=++siteFetchSeq;
+		var req=new XMLHttpRequest();
+		req.open('POST','/home/site/getIcon',true);
+		req.onreadystatechange=function(){
+			if(req.readyState!==4 || seq!==siteFetchSeq){
+				return;
+			}
+			var data=null;
+			try{
+				data=JSON.parse(req.response);
+			}catch(e){
+				data=null;
+			}
+			if(req.status!==200 || !data || data.error){
+				if(lastFetchedUrl===value){
+					lastFetchedUrl='';
+				}
+			}
+			if(req.status!==200 || !data){
+				if(announce){
+					showmsg('获取图标失败！请稍后再试');
+				}else if(!oNssNameInput.value){
+					autoGetSiteTitle();
+				}
+				return;
+			}
+			applySiteMeta(data, value, announce);
+		};
+		req.setRequestHeader('Content-Type','application/x-www-form-urlencoded;charset=UTF-8');
+		req.send('url='+replaceStr(value));
+	}
+
 	//抓取名称和图标--------------------------
 	$("#nssZhuaqu")[0].onclick=function(){
-		var re=/[^\s]+\.[^\s]+/i;
-		if(!re.test(oNssUrlInput.value)){
-			showmsg("获取图标失败！未输入网址或格式不正确");	
-			return false;
-		}
-
-		//抓取图标时Ajax至服务器
-	    var req=new XMLHttpRequest();
-	    req.open('POST','/home/site/getIcon',true);//异步
-
-	    req.onreadystatechange=function(){
-		    if(req.readyState==4 && req.status==200){					    	
-		    	if(JSON.parse(req.response)['error']){
-			    	showmsg(JSON.parse(req.response)['error']);
-			    	//$('#siteSetBlackBg').fadeOut(300);
-		    		return false;						    		
-		    	}
-		    	else if(JSON.parse(req.response)['success']){
-			    	showmsg(JSON.parse(req.response)['success']);
-					oNssImg.icontype=JSON.parse(req.response)['icontype'];
-					oNssImg.src=JSON.parse(req.response)['icon'];				    		
-		    	}
-		    }
-		}
-		req.setRequestHeader("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
-		req.send("url="+replaceStr(oNssUrlInput.value));	
+		requestSiteMeta(true);
 	}
 
 	//上传图片后立即预览 file对象,图片容器id--------------------------
@@ -817,13 +885,9 @@ function site(){
 		$('#siteSetBlackBg').fadeOut(300);
 	}
 
-	//网址input失去焦点自动添加http://--------------------------
+	//网址输入框离开后补全协议，并抓取网站名称和图标--------------------------
 	oNssUrlInput.onblur=function(){
-		this.value=this.value.replace(/。/g,".");
-		if(this.value!="" && this.value.search("http")==-1){
-			this.value="http://"+this.value;
-		}
-
+		requestSiteMeta(false);
 	}
 
     //特殊字符转义--------------------------
