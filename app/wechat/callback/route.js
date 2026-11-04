@@ -11,8 +11,9 @@ function home(request, reason) {
   const origin = forwarded
     ? `${proto}://${forwarded.split(',')[0].trim()}`
     : new URL(request.url).origin;
-  const nextPath = !reason && request.cookies?.get('wa_next')?.value === '/set-homepage/upload'
-    ? '/set-homepage/upload'
+  const requested = request.cookies?.get('wa_next')?.value;
+  const nextPath = !reason && (requested === '/set-homepage/upload' || requested === '/admin')
+    ? requested
     : '/';
   const url = new URL(nextPath, origin);
   if (reason) url.searchParams.set('wechat', reason);

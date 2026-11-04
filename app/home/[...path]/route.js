@@ -16,13 +16,14 @@ import {
   takeNextUserBackground,
 } from '../../../lib/backgrounds';
 import { createAlipayPayment, createWechatPayment, paymentReady, syncVipOrder } from '../../../lib/pay';
-import { isUserBackgroundUrl } from '../../../lib/oss';
+import { isLibraryWallpaperUrl, isUserBackgroundUrl } from '../../../lib/oss';
 import {
   destroySession,
   findUserBySession,
   readSessionToken,
   saveUserSettings,
 } from '../../../lib/users';
+import { handleAdmin } from '../../../lib/admin-http';
 import { createVipOrder, FREE_UPLOAD_LIMIT, VIP_PRICE_YUAN } from '../../../lib/vip';
 
 export const dynamic = 'force-dynamic';
@@ -121,6 +122,7 @@ async function listNavSites(userId = 0, categories = []) {
               DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
        FROM nav_sites
        WHERE (user_id = ? OR user_id IS NULL)
+         AND is_enabled = 1
          AND JSON_OVERLAPS(category, CAST(? AS JSON))
        ORDER BY popularity DESC, sort_order ASC, id ASC
        LIMIT 18`
@@ -211,6 +213,7 @@ async function listNavCategorySites(category, offset, limit = 30) {
     `SELECT title, url, logo, icon_url
      FROM nav_sites
      WHERE (user_id = 0 OR user_id IS NULL)
+       AND is_enabled = 1
        AND JSON_CONTAINS(category, JSON_QUOTE(?))
      ORDER BY popularity DESC, id ASC
      LIMIT ? OFFSET ?`,
@@ -297,6 +300,7 @@ function safeImagePath(value) {
   const imagePath = String(value || '').trim();
   if (/^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(imagePath)) return imagePath;
   if (isUserBackgroundUrl(imagePath)) return imagePath.split('?')[0];
+  if (isLibraryWallpaperUrl(imagePath)) return imagePath.split('?')[0];
   return '';
 }
 
@@ -403,6 +407,7 @@ function userPayload(base, user) {
     user_headimg: user.user_headimg,
     bg_category: user.bg_category,
     nav_categories: user.nav_categories,
+    ...(user.is_admin ? { is_admin: 1 } : {}),
   };
   return data;
 }
@@ -439,6 +444,9 @@ async function handle(request, context) {
   const params = context?.params ? await context.params : {};
   const segments = params.path || params.slug || [];
   const key = '/home/' + (Array.isArray(segments) ? segments.join('/') : String(segments));
+  if (key === '/home/admin/sites' || key === '/home/admin/wallpapers') {
+    return handleAdmin(request, key.endsWith('/wallpapers') ? 'wallpapers' : 'sites');
+  }
   const user = await currentUser(request);
   const data = userPayload(payload(), user);
 

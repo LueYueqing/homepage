@@ -6,9 +6,15 @@ function isBgCategory(value){
 function isUserWallpaper(url){
     return /^https:\/\/[^?#]+\/whatab\/[0-9]+\/[a-f0-9]{16}\.(jpg|png|webp)$/i.test(String(url||'').split('?')[0]);
 }
+function isLibraryWallpaper(url){
+    return /^https:\/\/[^/?#]+\/wallpapers\/[a-z0-9-]+\/[a-f0-9]{16}\.jpg$/i.test(String(url||'').split('?')[0]);
+}
 function wallpaperInCategory(url, category){
     if(category==='custom') return isUserWallpaper(url);
-    return isBgCategory(category) && String(url||'').indexOf('/uploads/bg/'+category+'/')===0;
+    var path=String(url||'').split('?')[0];
+    if(!isBgCategory(category)) return false;
+    if(path.indexOf('/uploads/bg/'+category+'/')===0) return true;
+    return isLibraryWallpaper(path) && path.indexOf('/wallpapers/'+category+'/')!==-1;
 }
 function paintWallpaper(node, url){
     if(!node){
@@ -25,7 +31,7 @@ function paintWallpaper(node, url){
 }
 function isWallpaperPath(url){
     var path=String(url||'').split('?')[0];
-    return /^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(path) || isUserWallpaper(path);
+    return /^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(path) || isUserWallpaper(path) || isLibraryWallpaper(path);
 }
 function readStoredCategory(){
     var value='';

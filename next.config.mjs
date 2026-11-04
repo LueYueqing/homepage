@@ -22,7 +22,11 @@ const nextConfig = {
         headers: PAGE_CACHE,
       },
       {
-        source: '/:path((?!_next|home|wechat|vip|uploads|static|common|_ext|qqlogin|links).*)',
+        source: '/admin',
+        headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
+      },
+      {
+        source: '/:path((?!_next|home|wechat|vip|uploads|static|common|_ext|qqlogin|links|admin).*)',
         headers: PAGE_CACHE,
       },
     ];
