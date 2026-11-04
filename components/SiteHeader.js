@@ -3,7 +3,7 @@ const LINKS = [
   ['/about', '关于我们'],
   ['/contact', '联系'],
   ['/guide', '使用指南'],
-  ['/set-homepage/upload', '上传背景图'],
+  ['/set-homepage/upload', '上传壁纸'],
   ['/share', '分享主页'],
 ];
 

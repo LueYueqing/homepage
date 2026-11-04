@@ -282,7 +282,7 @@ function consolejs(uiData){
         }
         document.getElementById('share-link-note').textContent=data.reused
             ? '这是你正在使用的分享链接。要新建或停止，请打开「分享主页」。'
-            : '已生成分享链接。没有登录的朋友打开后，会轮播你上传的背景。';
+            : '已生成分享链接。没有登录的朋友打开后，会在这个网址导航首页轮播你上传的壁纸。';
         document.getElementById('share-link-input').value=data.url||'';
         document.getElementById('share-link-stat').textContent=data.open_count
             ? ('已打开 '+data.open_count+' 次'+(data.last_opened_at ? '，最近 '+data.last_opened_at : ''))
@@ -949,7 +949,7 @@ $('#console-title-box').click(function(){
             }
         }
         hint.innerHTML=bgCategory==='custom'
-            ? (window.__jfShare ? '已选中「自选」，首页会轮换分享给你的背景图' : '已选中「自选」，首页会轮换你上传的背景图')
+            ? (window.__jfShare ? '已选中「自选」，首页会轮换分享给你的壁纸' : '已选中「自选」，首页会轮换你上传的壁纸')
             : (currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张');
         for(var i=0;i<bgCategories.length;i++){
             var item=bgCategories[i];
@@ -972,7 +972,7 @@ $('#console-title-box').click(function(){
         var entry=document.createElement('a');
         entry.className='bg-upload-entry';
         entry.href='/set-homepage/upload';
-        entry.textContent='上传背景图';
+        entry.textContent='上传壁纸';
         oBgPicWrap.appendChild(entry);
     }
 
@@ -1219,8 +1219,8 @@ $('#console-title-box').click(function(){
                             bgNoMore=true;
                             if(previewCategory==='custom' && bgOffset===0){
                                 oBgLoadText.innerHTML=(window.__jfUser && Number(window.__jfUser.user_type)===1)
-                                    ? '还没有背景图'
-                                    : '登录后才能使用自选背景';
+                                    ? '还没有壁纸'
+                                    : (window.__jfShare ? '分享的主页还没有壁纸' : '登录后才能使用自选壁纸');
                             }else{
                                 oBgLoadText.innerHTML='';
                             }

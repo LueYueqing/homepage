@@ -150,7 +150,7 @@ export default function UploadBackgrounds() {
   const [isVip, setIsVip] = useState(false);
   const [vipUntil, setVipUntil] = useState('');
   const [priceYuan, setPriceYuan] = useState('5');
-  const [message, setMessage] = useState('正在读取已上传的背景图');
+  const [message, setMessage] = useState('正在读取已上传的壁纸');
   const [busy, setBusy] = useState(false);
   const [paying, setPaying] = useState('');
   const [pending, setPending] = useState([]);
@@ -267,7 +267,7 @@ export default function UploadBackgrounds() {
     setPending(chosen);
     setProgress(null);
     if (!chosen.length) {
-      setMessage(`最多上传 ${limit} 张背景图`);
+      setMessage(`最多上传 ${limit} 张壁纸`);
       return;
     }
     const extra = files.length - chosen.length;
@@ -286,7 +286,7 @@ export default function UploadBackgrounds() {
     for (let index = 0; index < pending.length; index += 1) {
       if (remain <= 0) {
         setPending(pending.slice(index));
-        setMessage(`最多上传 ${limit} 张背景图`);
+        setMessage(`最多上传 ${limit} 张壁纸`);
         setBusy(false);
         return;
       }
@@ -309,7 +309,7 @@ export default function UploadBackgrounds() {
     setProgress(null);
     setPage(1);
     await load(true).catch(() => {});
-    setMessage('上传成功。到首页壁纸库选择「自选」即可使用');
+    setMessage('上传成功。首页选「自选」就会轮播，也可以到「分享主页」发给别人');
     setBusy(false);
   }
 
@@ -367,7 +367,7 @@ export default function UploadBackgrounds() {
 
   async function deleteViewerImage() {
     if (!viewer || busy) return;
-    if (!window.confirm('删除这张背景图？')) return;
+    if (!window.confirm('删除这张壁纸？')) return;
     const imageId = viewer.image.id;
     const index = images.findIndex((item) => item.id === imageId);
     setBusy(true);
@@ -445,13 +445,13 @@ export default function UploadBackgrounds() {
   }
 
   if (!ready) {
-    return <p>{message || '正在读取已上传的背景图'}</p>;
+    return <p>{message || '正在读取已上传的壁纸'}</p>;
   }
 
   if (!loggedIn) {
     return (
       <div className="upload-panel">
-        <p>登录后才能上传背景图。普通用户最多 20 张，会员一年 {priceYuan} 元可上传 100 张。首页壁纸库选择「自选」时会轮换这些图片。</p>
+        <p>登录后才能上传壁纸。这些图片用于你的网址导航首页，也可以分享给别人。普通用户最多 20 张，会员一年 {priceYuan} 元可上传 100 张。首页壁纸库选择「自选」时会轮换这些图片。</p>
         <a className="upload-btn" href="/wechat/login?next=/set-homepage/upload">微信登录</a>
       </div>
     );
@@ -494,7 +494,7 @@ export default function UploadBackgrounds() {
         </div>
         {qr ? <img className="vip-qr" src={qr} alt="支付二维码" /> : null}
       </div>
-      <p>上传后，在首页壁纸设置里选择「自选」，就会使用这些背景图。</p>
+      <p>上传后，在首页壁纸设置里选择「自选」，网址导航就会轮播这些壁纸。也可以到<a href="/share">分享主页</a>，把它们分享给别人。</p>
       <div className="upload-row">
         <label className={`upload-btn${busy || images.length >= limit ? ' disabled' : ''}`}>
           选择图片

@@ -3,7 +3,8 @@ import SiteHeader from '../../../components/SiteHeader';
 import UploadBackgrounds from '../../../components/UploadBackgrounds';
 
 export const metadata = {
-  title: '上传背景图 - 哇塔主页',
+  title: '上传壁纸 - 哇塔主页',
+  description: '登录后上传自己的壁纸。首页选择「自选」会轮播这些图片，也可以到分享主页把它们分享给别人。',
   robots: { index: false, follow: false },
 };
 
@@ -202,7 +203,7 @@ export default function UploadPage() {
         <div id="widthDiv">
           <div className="textMain">
             <div className="textDiv">
-              <h1 className="fontTitle1">上传背景图</h1>
+              <h1 className="fontTitle1">上传壁纸</h1>
               <br /><br /><br /><br />
               <UploadBackgrounds />
             </div>

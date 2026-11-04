@@ -691,7 +691,7 @@ async function handle(request, context) {
     const shared = await sharedRotation(request, user, category, { advance: true });
     if (shared?.stopped) return stoppedShareResponse();
     if (shared) {
-      if (!shared.pick) return NextResponse.json({ success: 0, error: '分享的主页还没有背景图' });
+      if (!shared.pick) return NextResponse.json({ success: 0, error: '分享的主页还没有壁纸' });
       const response = NextResponse.json({
         success: 1,
         bg_url: shared.pick.url,
@@ -707,7 +707,7 @@ async function handle(request, context) {
     const pick = await takeNextWallpaper(category, user);
     if (!pick) {
       if (category === CUSTOM_BG_CATEGORY) {
-        return NextResponse.json({ success: 0, error: '还没有自选背景图，请先上传' });
+        return NextResponse.json({ success: 0, error: '还没有自选壁纸，请先上传' });
       }
       return NextResponse.json({ success: 0, bg_url: data.uiData.bg_url });
     }

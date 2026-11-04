@@ -4,7 +4,7 @@ import { pageMeta } from '../../lib/seo';
 
 export const metadata = pageMeta({
   title: '把哇塔主页设为 Chrome 等浏览器启动页',
-  description: '按浏览器查看把哇塔主页设为启动页的步骤。支持 Chrome、Edge、Firefox 以及 360、QQ、搜狗等浏览器，打开浏览器即可进入自己的导航主页。',
+  description: '把哇塔主页设为浏览器启动页。打开浏览器就是你的网址导航，也可以继续使用自己上传和分享的壁纸。支持 Chrome、Edge、Firefox 以及 360、QQ、搜狗等浏览器。',
   path: '/set-homepage',
 });
 
