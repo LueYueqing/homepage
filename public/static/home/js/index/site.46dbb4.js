@@ -22,6 +22,178 @@ function site(){
         
     }
 
+    function shareQueryToken(){
+        var match=location.search.match(/(?:^|[?&])share=([a-f0-9]{32})(?:&|$)/i);
+        return match ? match[1].toLowerCase() : '';
+    }
+
+    function shareFlagOn(){
+        return /(?:^|;\s*)wa_shared=1(?:;|$)/.test(document.cookie);
+    }
+
+    function clearLocalShare(){
+        window.__jfShare=null;
+        try{ localStorage.removeItem('jf_bg_category'); }catch(e){}
+        try{ localStorage.removeItem('jf_bg_ready'); }catch(e){}
+        document.cookie='jf_bg_category=;path=/;max-age=0';
+        document.cookie='wa_shared=;path=/;max-age=0';
+    }
+
+    window.showShareStopped=function(){
+        clearLocalShare();
+        if(document.getElementById('share-stopped')){
+            return;
+        }
+        var box=document.createElement('div');
+        box.id='share-stopped';
+        box.style.cssText='position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;';
+        var card=document.createElement('div');
+        card.style.cssText='width:min(420px,calc(100% - 32px));background:#fff;color:#333;border-radius:12px;padding:22px;line-height:1.7;';
+        var text=document.createElement('p');
+        text.style.margin='0';
+        text.textContent='分享给您主页的用户已经取消了分享';
+        card.appendChild(text);
+        box.appendChild(card);
+        document.body.appendChild(box);
+        setTimeout(function(){
+            location.replace('/');
+        },4000);
+    };
+
+    function showShareWelcome(name){
+        if(document.getElementById('share-welcome')){
+            return;
+        }
+        var box=document.createElement('div');
+        box.id='share-welcome';
+        box.style.cssText='position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;';
+        var card=document.createElement('div');
+        card.style.cssText='width:min(460px,calc(100% - 32px));background:#fff;color:#333;border-radius:12px;padding:22px;line-height:1.7;';
+        var text=document.createElement('p');
+        text.style.margin='0 0 16px';
+        text.textContent='您点开的是「'+name+'」分享的主页，您的背景将以'+name+'设置的背景作为轮播壁纸，您也可以创建自己的壁纸并分享给别人。';
+        var actions=document.createElement('div');
+        actions.style.cssText='display:flex;gap:12px;justify-content:flex-end;align-items:center;';
+        var create=document.createElement('a');
+        create.href='/share';
+        create.textContent='创建我的壁纸并分享';
+        create.style.color='#2c7bf6';
+        var ok=document.createElement('button');
+        ok.type='button';
+        ok.textContent='知道了';
+        ok.style.cssText='border:0;border-radius:100px;padding:8px 16px;background:#2c7bf6;color:#fff;cursor:pointer;';
+        ok.onclick=function(){ box.remove(); };
+        actions.appendChild(create);
+        actions.appendChild(ok);
+        card.appendChild(text);
+        card.appendChild(actions);
+        box.appendChild(card);
+        document.body.appendChild(box);
+    }
+
+    function noteOwnShareOpen(){
+        var token=shareQueryToken();
+        if(!token){
+            return;
+        }
+        var fd=new FormData();
+        fd.append('token', token);
+        fd.append('count', '1');
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/share/visit',true);
+        req.onreadystatechange=function(){
+            if(req.readyState===4 && req.status===200){
+                history.replaceState(null, '', location.pathname+location.hash);
+            }
+        };
+        req.send(fd);
+    }
+
+    function prepareShare(done){
+        var token=shareQueryToken();
+        if(!token && !shareFlagOn()){
+            done();
+            return;
+        }
+        var fd=new FormData();
+        if(token){
+            fd.append('token', token);
+            fd.append('count', '1');
+        }
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/share/visit',true);
+        req.onreadystatechange=function(){
+            if(req.readyState!==4){
+                return;
+            }
+            var data={};
+            try{ data=JSON.parse(req.response||'{}'); }catch(e){}
+            if(req.status===200 && token){
+                history.replaceState(null, '', location.pathname+location.hash);
+            }
+            if(req.status!==200){
+                done();
+                return;
+            }
+            if(data.status==='stopped'){
+                window.showShareStopped();
+                done();
+                return;
+            }
+            if(data.status==='missing'){
+                clearLocalShare();
+                done();
+                return;
+            }
+            if(data.status==='active'){
+                var name=data.name||'微信用户';
+                window.__jfShare={name:name};
+                if(typeof writeStoredCategory==='function'){
+                    writeStoredCategory('custom');
+                }
+                try{ localStorage.removeItem('jf_bg_ready'); }catch(e){}
+                if(token){
+                    var seen='';
+                    try{ seen=localStorage.getItem('wa_share_seen_'+token)||''; }catch(e){}
+                    if(!seen){
+                        try{ localStorage.setItem('wa_share_seen_'+token,'1'); }catch(e){}
+                        showShareWelcome(name);
+                    }
+                }
+            }
+            done();
+        };
+        req.send(fd);
+    }
+
+    function dropForeignReady(){
+        var id=userData && userData.id;
+        if(!id){
+            return;
+        }
+        try{
+            var data=JSON.parse(localStorage.getItem('jf_bg_ready')||'');
+            var match=data && String(data.url||'').match(/\/whatab\/(\d+)\//);
+            if(match && Number(match[1])!==Number(id)){
+                localStorage.removeItem('jf_bg_ready');
+            }
+        }catch(e){}
+    }
+
+    function openHome(iconsOnly){
+        if(iconsOnly || (userData && Number(userData['user_type'])===1)){
+            if(userData && Number(userData['user_type'])===1){
+                noteOwnShareOpen();
+                dropForeignReady();
+            }
+            toWriteSite(!!iconsOnly);
+            return;
+        }
+        prepareShare(function(){
+            toWriteSite(false);
+        });
+    }
+
     //刷新用户--------------------------
     var userData=false;
     var writeSiteMenu=null;
@@ -59,7 +231,7 @@ function site(){
                             writeNavCategories(userData['nav_categories']);
                         }
                     }
-                    toWriteSite(!!iconsOnly);
+                    openHome(!!iconsOnly);
                     if(userData['user_type']==0){//未登录，type为0
                         $('#user-box')[0].style.cursor='pointer';
                         $("#beian-wrap").fadeIn(300);//显示备案                        

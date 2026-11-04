@@ -1,6 +1,6 @@
 import { SITE } from '../lib/seo';
 
-const PRIVATE_PATHS = ['/home/', '/wechat/', '/qqlogin', '/links', '/admin'];
+const PRIVATE_PATHS = ['/home/', '/wechat/', '/qqlogin', '/links', '/admin', '/share'];
 const AI_BOTS = ['GPTBot', 'Google-Extended', 'ClaudeBot'];
 
 export default function robots() {

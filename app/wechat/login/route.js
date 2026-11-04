@@ -24,7 +24,7 @@ export function GET(request) {
   const response = NextResponse.redirect(authorizeUrl(state));
   response.cookies.set('wechat_state', state, cookieOptions());
   const next = new URL(request.url).searchParams.get('next');
-  if (next === '/set-homepage/upload' || next === '/admin') {
+  if (next === '/set-homepage/upload' || next === '/admin' || next === '/share') {
     response.cookies.set('wa_next', next, cookieOptions());
   }
   return response;

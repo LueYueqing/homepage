@@ -139,6 +139,10 @@ function cssBackgroundUrl(value){
     return text.replace('/400/','/');
 }
 (function(){
+    var shareNow=/(?:^|[?&])share=[a-f0-9]{32}(?:&|$)/i.test(location.search) || /(?:^|;\s*)wa_shared=1(?:;|$)/.test(document.cookie);
+    if(shareNow){
+        return;
+    }
     var ready=readReadyWallpaper();
     var bg=document.getElementById('bg-wrap');
     if(!ready || !bg){
@@ -242,6 +246,76 @@ function consolejs(uiData){
         rotateBg(category, function(url){
             preloadNextBg(category, url);
         }, true);
+    });
+
+    function showShareLink(data){
+        var box=document.getElementById('share-link-box');
+        if(!box){
+            box=document.createElement('div');
+            box.id='share-link-box';
+            box.style.cssText='position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;';
+            var card=document.createElement('div');
+            card.style.cssText='width:min(440px,calc(100% - 32px));background:#fff;color:#333;border-radius:12px;padding:20px;line-height:1.6;';
+            card.innerHTML='<div style="font-size:16px;margin-bottom:8px;">分享我的主页</div><p id="share-link-note" style="margin:0 0 8px;font-size:13px;color:#666;"></p><input id="share-link-input" readonly style="width:100%;box-sizing:border-box;margin:8px 0;padding:8px;border:1px solid #ddd;border-radius:8px;color:#333;"><p id="share-link-stat" style="margin:0 0 8px;font-size:13px;color:#666;"></p><div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;"><a id="share-manage-link" href="/share" style="margin-right:auto;color:#2c7bf6;">管理分享</a><button type="button" id="share-copy-btn" style="border:0;border-radius:100px;padding:8px 16px;background:#2c7bf6;color:#fff;cursor:pointer;">复制链接</button><button type="button" id="share-close-btn" style="border:0;border-radius:100px;padding:8px 16px;background:#f2f2f2;color:#333;cursor:pointer;">关闭</button></div>';
+            box.appendChild(card);
+            document.body.appendChild(box);
+            box.addEventListener('click', function(event){
+                if(event.target===box){
+                    box.style.display='none';
+                }
+            });
+            document.getElementById('share-close-btn').onclick=function(){
+                box.style.display='none';
+            };
+            document.getElementById('share-copy-btn').onclick=function(){
+                var input=document.getElementById('share-link-input');
+                var button=this;
+                input.select();
+                var done=function(){
+                    button.textContent='已复制';
+                    setTimeout(function(){ button.textContent='复制链接'; }, 1500);
+                };
+                if(navigator.clipboard && navigator.clipboard.writeText){
+                    navigator.clipboard.writeText(input.value).then(done, function(){});
+                }
+            };
+        }
+        document.getElementById('share-link-note').textContent=data.reused
+            ? '这是你正在使用的分享链接。要新建或停止，请打开「分享主页」。'
+            : '已生成分享链接。没有登录的朋友打开后，会轮播你上传的背景。';
+        document.getElementById('share-link-input').value=data.url||'';
+        document.getElementById('share-link-stat').textContent=data.open_count
+            ? ('已打开 '+data.open_count+' 次'+(data.last_opened_at ? '，最近 '+data.last_opened_at : ''))
+            : '还没有人打开';
+        box.style.display='flex';
+    }
+
+    $('.console-share-btn').off('click').on('click', function(){
+        if(!(window.__jfUser && Number(window.__jfUser.user_type)===1)){
+            showLoginBtn();
+            return;
+        }
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/share/create',true);
+        var fd=new FormData();
+        fd.append('reuse','1');
+        req.onreadystatechange=function(){
+            if(req.readyState!==4){
+                return;
+            }
+            var data={};
+            try{ data=JSON.parse(req.response||'{}'); }catch(e){}
+            if(req.status===200 && data.url){
+                showShareLink(data);
+                return;
+            }
+            if(data.login){
+                showLoginBtn();
+                return;
+            }
+            showmsg(data.error||'暂时无法创建分享');
+        };
+        req.send(fd);
     });
 
     //下载当前壁纸    
@@ -796,6 +870,10 @@ $('#console-title-box').click(function(){
                     return;
                 }
                 var data=JSON.parse(req.response);
+                if(data && data.stopped && typeof window.showShareStopped==='function'){
+                    window.showShareStopped();
+                    return;
+                }
                 if(data.success && data.bg_url && (!category || (data.category===category && wallpaperInCategory(data.bg_url, category)))){
                     nowBgpic=data.bg_url;
                     applyBg(data.bg_url);
@@ -844,7 +922,7 @@ $('#console-title-box').click(function(){
                 }
                 var img=new Image();
                 img.onload=function(){
-                    if(readStoredCategory()!==category){
+                    if(readStoredCategory()!==category || window.__jfShare){
                         return;
                     }
                     try{
@@ -871,7 +949,7 @@ $('#console-title-box').click(function(){
             }
         }
         hint.innerHTML=bgCategory==='custom'
-            ? '已选中「自选」，首页会轮换你上传的背景图'
+            ? (window.__jfShare ? '已选中「自选」，首页会轮换分享给你的背景图' : '已选中「自选」，首页会轮换你上传的背景图')
             : (currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张');
         for(var i=0;i<bgCategories.length;i++){
             var item=bgCategories[i];
@@ -902,7 +980,7 @@ $('#console-title-box').click(function(){
         if(!isBgCategory(category)){
             return;
         }
-        if(category==='custom' && window.__jfUser && Number(window.__jfUser.user_type)!==1){
+        if(category==='custom' && !(window.__jfUser && Number(window.__jfUser.user_type)===1) && !window.__jfShare){
             showLoginBtn();
             return;
         }

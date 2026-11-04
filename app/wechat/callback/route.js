@@ -12,7 +12,7 @@ function home(request, reason) {
     ? `${proto}://${forwarded.split(',')[0].trim()}`
     : new URL(request.url).origin;
   const requested = request.cookies?.get('wa_next')?.value;
-  const nextPath = !reason && (requested === '/set-homepage/upload' || requested === '/admin')
+  const nextPath = !reason && (requested === '/set-homepage/upload' || requested === '/admin' || requested === '/share')
     ? requested
     : '/';
   const url = new URL(nextPath, origin);

@@ -4,6 +4,7 @@ const LINKS = [
   ['/contact', '联系'],
   ['/guide', '使用指南'],
   ['/set-homepage/upload', '上传背景图'],
+  ['/share', '分享主页'],
 ];
 
 export default function SiteHeader({ current }) {

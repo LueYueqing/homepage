@@ -26,7 +26,11 @@ const nextConfig = {
         headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
       },
       {
-        source: '/:path((?!_next|home|wechat|vip|uploads|static|common|_ext|qqlogin|links|admin).*)',
+        source: '/share',
+        headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
+      },
+      {
+        source: '/:path((?!_next|home|wechat|vip|uploads|static|common|_ext|qqlogin|links|admin|share).*)',
         headers: PAGE_CACHE,
       },
     ];

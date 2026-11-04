@@ -26,6 +26,13 @@ import {
   sessionCookieOptions,
 } from '../../../lib/users';
 import { handleAdmin } from '../../../lib/admin-http';
+import {
+  clearShareCookies,
+  handleShare,
+  shareIndexCookieOptions,
+  stepSharedWallpaper,
+  wallpaperShare,
+} from '../../../lib/shares';
 import { createVipOrder, FREE_UPLOAD_LIMIT, VIP_PRICE_YUAN } from '../../../lib/vip';
 
 export const dynamic = 'force-dynamic';
@@ -259,7 +266,7 @@ async function listNavCategories() {
     });
 }
 
-async function listCategories(user) {
+async function listCategories(user, share) {
   const pool = getPool();
   const [rows] = await pool.query(
     `SELECT category, category_note, COUNT(*) AS total
@@ -273,18 +280,20 @@ async function listCategories(user) {
       total: Number(row.total),
     }))
     .sort((a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category));
+  const ownerId = user?.id || share?.userId || 0;
   categories.unshift({
     category: CUSTOM_BG_CATEGORY,
     category_note: '自选',
-    total: user ? await countUserBackgrounds(user.id) : 0,
+    total: ownerId ? await countUserBackgrounds(ownerId) : 0,
   });
   return categories;
 }
 
-async function listThumbs(category, offset, user) {
+async function listThumbs(category, offset, user, share) {
   if (category === CUSTOM_BG_CATEGORY) {
-    if (!user) return [];
-    return listUserBackgroundThumbs(user.id, offset);
+    const ownerId = user?.id || share?.userId;
+    if (!ownerId) return [];
+    return listUserBackgroundThumbs(ownerId, offset);
   }
   const pool = getPool();
   const [rows] = await pool.query(
@@ -404,6 +413,7 @@ function userPayload(base, user) {
   data.uiData = { ...data.uiData, ...user.ui_settings };
   if (user.bg_url) data.uiData.bg_url = user.bg_url;
   data.userData = {
+    id: user.id,
     user_type: 1,
     user_name: user.user_name,
     user_headimg: user.user_headimg,
@@ -442,6 +452,28 @@ async function handleBackgroundUpload(request, user) {
   }
 }
 
+function stoppedShareResponse() {
+  const response = NextResponse.json({
+    success: 0,
+    error: '分享给您主页的用户已经取消了分享',
+    stopped: 1,
+  });
+  return clearShareCookies(response);
+}
+
+async function sharedRotation(request, user, category, options) {
+  const share = await wallpaperShare(request, user);
+  if (!share) return null;
+  if (category && category !== CUSTOM_BG_CATEGORY) return null;
+  if (share.stopped) return { stopped: true };
+  const pick = await stepSharedWallpaper(share.userId, {
+    exclude: options.exclude || '',
+    advance: Boolean(options.advance),
+    index: request.cookies.get('wa_share_idx')?.value,
+  });
+  return { pick };
+}
+
 async function handle(request, context) {
   const params = context?.params ? await context.params : {};
   const segments = params.path || params.slug || [];
@@ -450,6 +482,9 @@ async function handle(request, context) {
     return handleAdmin(request, key.endsWith('/wallpapers') ? 'wallpapers' : 'sites');
   }
   const user = await currentUser(request);
+  if (key.startsWith('/home/share/')) {
+    return handleShare(request, key.slice('/home/share/'.length), user);
+  }
   const data = userPayload(payload(), user);
 
   if (key === '/home/user/clogin' || key === '/home/user/login') {
@@ -514,7 +549,7 @@ async function handle(request, context) {
     return NextResponse.json(await listNavCategorySites(category, offset, 30));
   }
   if (key === '/home/bg/categories') {
-    return NextResponse.json(await listCategories(user));
+    return NextResponse.json(await listCategories(user, await wallpaperShare(request, user)));
   }
   if (key === '/home/bg/thumbs') {
     if (!user) return NextResponse.json({ error: '请先微信登录' }, { status: 401 });
@@ -617,12 +652,23 @@ async function handle(request, context) {
     const category = safeCategory(fields.category);
     const offset = Math.max(0, Number.parseInt(fields.offset, 10) || 0);
     if (!category) return NextResponse.json([]);
-    return NextResponse.json(await listThumbs(category, offset, user));
+    return NextResponse.json(await listThumbs(category, offset, user, await wallpaperShare(request, user)));
   }
   if (key === '/home/bg/peek') {
     const fields = await readFields(request);
     const category = safeCategory(fields.category);
     const exclude = safeImagePath(fields.exclude);
+    const shared = await sharedRotation(request, user, category, { exclude, advance: false });
+    if (shared?.stopped) return stoppedShareResponse();
+    if (shared) {
+      if (!shared.pick) return NextResponse.json({ success: 0 });
+      return NextResponse.json({
+        success: 1,
+        bg_url: shared.pick.url,
+        category: CUSTOM_BG_CATEGORY,
+        title: '分享',
+      });
+    }
     const pick = await peekNextWallpaper(category, exclude, user);
     if (!pick) return NextResponse.json({ success: 0 });
     return NextResponse.json({
@@ -642,6 +688,19 @@ async function handle(request, context) {
   if (key === '/home/bg/randbg') {
     const fields = await readFields(request);
     const category = safeCategory(fields.category);
+    const shared = await sharedRotation(request, user, category, { advance: true });
+    if (shared?.stopped) return stoppedShareResponse();
+    if (shared) {
+      if (!shared.pick) return NextResponse.json({ success: 0, error: '分享的主页还没有背景图' });
+      const response = NextResponse.json({
+        success: 1,
+        bg_url: shared.pick.url,
+        category: CUSTOM_BG_CATEGORY,
+        title: '分享',
+      });
+      response.cookies.set('wa_share_idx', String(shared.pick.index), shareIndexCookieOptions());
+      return response;
+    }
     if (category === CUSTOM_BG_CATEGORY && !user) {
       return NextResponse.json({ success: 0, error: '请先微信登录', login: 1 });
     }
