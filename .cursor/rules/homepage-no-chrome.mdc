@@ -8,6 +8,6 @@ alwaysApply: true
 首页 `/` 是网址导航，版面和内页不同。
 
 - 不要给 `app/page.js` 或 `index.html` 加上 `SiteHeader`、`SiteFooter`，也不要给首页的 `LegacyPage` 传 `header`。
-- 内页（关于、联系、使用指南、设为主页、上传背景图、服务条款、隐私政策）继续共用 `components/SiteHeader.js` 和 `components/SiteFooter.js`。
-- 首页底部的 `#site-legal`（隐私政策、服务条款、联系）不是这套页脚，保留。
-- 构建时间写在 `components/SiteFooter.js` 里，显示每次构建写入的固定时间。不要加到首页 `/` 或 `#site-legal`。
+- 内页（关于我们、联系我们、使用指南、设为主页、上传壁纸、分享主页、服务条款、隐私政策）继续共用 `components/SiteHeader.js` 和 `components/SiteFooter.js`。
+- 首页底部不要放隐私政策、服务条款、联系。这些入口留在内页页脚。
+- 构建时间写在 `components/SiteFooter.js` 里，显示每次构建写入的固定时间。不要加到首页 `/`。
