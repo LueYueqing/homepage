@@ -309,10 +309,11 @@ export default function UploadBackgrounds() {
         return;
       }
       const nextUrl = data.url;
+      const nextThumb = data.thumb || nextUrl;
       const imageId = viewer.image.id;
-      setImages((list) => list.map((item) => (item.id === imageId ? { ...item, url: nextUrl } : item)));
+      setImages((list) => list.map((item) => (item.id === imageId ? { ...item, url: nextUrl, thumb: nextThumb } : item)));
       setViewer((current) => (current && current.image.id === imageId
-        ? { ...current, image: { ...current.image, url: nextUrl } }
+        ? { ...current, image: { ...current.image, url: nextUrl, thumb: nextThumb } }
         : current));
       setCropError('');
     } catch {
@@ -489,7 +490,7 @@ export default function UploadBackgrounds() {
       <div className="upload-grid">
         {pageImages.map((image) => (
           <div className="upload-card" key={image.id} onClick={() => openCrop(image)}>
-            <img src={image.url} alt="" />
+            <img src={image.thumb || image.url} alt="" />
             <button type="button" disabled={busy} onClick={(event) => { event.stopPropagation(); removeImage(image.id); }}>删除</button>
           </div>
         ))}

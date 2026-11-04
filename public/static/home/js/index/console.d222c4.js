@@ -1149,9 +1149,12 @@ $('#console-title-box').click(function(){
                         for(var i=0;i<ajaxBgList.length;i++){
                             var oNewBgDiv=document.createElement('div');                            
                             oNewBgDiv.className="bg-pic-box";
-                            var realPicPath=ajaxBgList[i].replace('/400/',"/");
-                            oNewBgDiv.innerHTML="<a download href='"+realPicPath+"' class='set-pic-btn btn' target='_blank' title='下载壁纸'></a>";
-                            oNewBgDiv.style.backgroundImage='url("'+ajaxBgList[i]+'")';
+                            var item=ajaxBgList[i];
+                            var preview=typeof item==='string' ? item : (item.thumb||item.url||'');
+                            var full=typeof item==='string' ? item.replace('/400/','/') : (item.url||preview);
+                            oNewBgDiv.dataset.full=full;
+                            oNewBgDiv.innerHTML="<a download href='"+full+"' class='set-pic-btn btn' target='_blank' title='下载壁纸'></a>";
+                            oNewBgDiv.style.backgroundImage='url("'+preview+'")';
                             if(previewCategory==='custom'){
                                 oNewBgDiv.style.backgroundSize='contain';
                             }
@@ -1170,7 +1173,7 @@ $('#console-title-box').click(function(){
     
     function clickBgPic(){
         $(".bg-pic-box").click(function(){
-            nowBgpic=cssBackgroundUrl(this.style.backgroundImage);
+            nowBgpic=this.dataset.full || cssBackgroundUrl(this.style.backgroundImage);
             // alert(nowBgpic);
             paintWallpaper($('#bg-wrap')[0], nowBgpic);
             // oBgPicBox.src='./home/bg/show?type=temp&picurl='+nowBgpic;

@@ -572,7 +572,7 @@ async function handle(request, context) {
         width: fields.width,
         height: fields.height,
       });
-      return NextResponse.json({ success: 1, url: saved.url });
+      return NextResponse.json({ success: 1, url: saved.url, thumb: saved.thumb });
     } catch (error) {
       const status = error.status || 500;
       const message = status === 500 ? '裁剪失败，请稍后再试' : (error.message || '裁剪失败');
