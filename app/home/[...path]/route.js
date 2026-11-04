@@ -307,6 +307,15 @@ async function listThumbs(category, offset, user, share) {
   return rows.map((row) => row.thumb_path);
 }
 
+function wallpaperThumb(imagePath, thumbPath) {
+  const full = String(imagePath || '').split('?')[0];
+  const thumb = String(thumbPath || '').split('?')[0];
+  if (thumb && thumb !== full) return thumb;
+  const matched = full.match(/^(.*\/wallpapers\/[a-z0-9-]+)\/([a-f0-9]{16}\.jpg)$/i);
+  if (!matched || /\/400$/i.test(matched[1])) return '';
+  return `${matched[1]}/400/${matched[2]}`;
+}
+
 function safeImagePath(value) {
   const imagePath = String(value || '').trim();
   if (/^\/uploads\/bg\/[a-z0-9-]+\/[a-z0-9-]+\.jpg$/.test(imagePath)) return imagePath;
@@ -319,7 +328,7 @@ async function peekNextWallpaper(category, exclude, user) {
   if (category === CUSTOM_BG_CATEGORY) {
     if (!user) return null;
     const pick = await peekUserBackground(user.id, exclude);
-    return pick ? { image_path: pick.image_url, category: CUSTOM_BG_CATEGORY, title: '自选' } : null;
+    return pick ? { image_path: pick.image_url, thumb_path: pick.thumb_url || '', category: CUSTOM_BG_CATEGORY, title: '自选' } : null;
   }
   const pool = getPool();
   const filters = [];
@@ -334,7 +343,7 @@ async function peekNextWallpaper(category, exclude, user) {
   }
   const where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
   const [rows] = await pool.query(
-    `SELECT image_path, category, title
+    `SELECT image_path, thumb_path, category, title
      FROM wallpapers
      ${where}
      ORDER BY last_used_at ASC, id ASC
@@ -362,20 +371,20 @@ async function takeNextWallpaper(category, user) {
   if (category === CUSTOM_BG_CATEGORY) {
     if (!user) return null;
     const pick = await takeNextUserBackground(user.id);
-    return pick ? { image_path: pick.image_url, category: CUSTOM_BG_CATEGORY, title: '自选' } : null;
+    return pick ? { image_path: pick.image_url, thumb_path: pick.thumb_url || '', category: CUSTOM_BG_CATEGORY, title: '自选' } : null;
   }
   const pool = getPool();
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
     const sql = category
-      ? `SELECT id, image_path, category, title
+      ? `SELECT id, image_path, thumb_path, category, title
          FROM wallpapers
          WHERE category = ?
          ORDER BY last_used_at ASC, id ASC
          LIMIT 1
          FOR UPDATE`
-      : `SELECT id, image_path, category, title
+      : `SELECT id, image_path, thumb_path, category, title
          FROM wallpapers
          ORDER BY last_used_at ASC, id ASC
          LIMIT 1
@@ -666,6 +675,7 @@ async function handle(request, context) {
       return NextResponse.json({
         success: 1,
         bg_url: shared.pick.url,
+        thumb: shared.pick.thumb || '',
         category: CUSTOM_BG_CATEGORY,
         title: '分享',
       });
@@ -675,6 +685,7 @@ async function handle(request, context) {
     return NextResponse.json({
       success: 1,
       bg_url: pick.image_path,
+      thumb: wallpaperThumb(pick.image_path, pick.thumb_path),
       category: pick.category,
       title: pick.title,
     });
@@ -696,6 +707,7 @@ async function handle(request, context) {
       const response = NextResponse.json({
         success: 1,
         bg_url: shared.pick.url,
+        thumb: shared.pick.thumb || '',
         category: CUSTOM_BG_CATEGORY,
         title: '分享',
       });
@@ -715,6 +727,7 @@ async function handle(request, context) {
     return NextResponse.json({
       success: 1,
       bg_url: pick.image_path,
+      thumb: wallpaperThumb(pick.image_path, pick.thumb_path),
       category: pick.category,
       title: pick.title,
     });

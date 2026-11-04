@@ -16,18 +16,70 @@ function wallpaperInCategory(url, category){
     if(path.indexOf('/uploads/bg/'+category+'/')===0) return true;
     return isLibraryWallpaper(path) && path.indexOf('/wallpapers/'+category+'/')!==-1;
 }
-function paintWallpaper(node, url){
+function thumbForWallpaper(url){
+    var path=String(url||'').split('?')[0];
+    var matched=path.match(/^(.*\/wallpapers\/[a-z0-9-]+)\/([a-f0-9]{16}\.jpg)$/i);
+    if(!matched || /\/400$/i.test(matched[1])){
+        return '';
+    }
+    return matched[1]+'/400/'+matched[2];
+}
+function rememberedThumb(url){
+    try{
+        var data=JSON.parse(localStorage.getItem('jf_bg_thumb')||'');
+        if(data && data.url===url && data.thumb && data.thumb!==url){
+            return data.thumb;
+        }
+    }catch(e){}
+    return '';
+}
+function rememberThumb(url, thumb){
+    if(!url || !thumb || thumb===url){
+        return;
+    }
+    try{
+        localStorage.setItem('jf_bg_thumb', JSON.stringify({url:url, thumb:thumb}));
+    }catch(e){}
+}
+var wallpaperPaintSeq=0;
+function paintWallpaper(node, url, thumb){
     if(!node){
         return;
     }
-    node.style.backgroundImage='url("'+url+'")';
-    if(isUserWallpaper(url)){
-        node.style.backgroundSize='contain';
-        node.style.backgroundColor='#111111';
-    }else{
-        node.style.backgroundSize='cover';
-        node.style.backgroundColor='transparent';
+    var full=cssBackgroundUrl(String(url||'').split('?')[0]);
+    if(!full){
+        return;
     }
+    var preview=thumb || rememberedThumb(full) || thumbForWallpaper(full);
+    if(!preview || preview===full){
+        preview='';
+    }
+    var seq=++wallpaperPaintSeq;
+    node.dataset.bgPaint=String(seq);
+    function apply(imageUrl){
+        if(node.dataset.bgPaint!==String(seq)){
+            return;
+        }
+        node.style.backgroundImage='url("'+imageUrl+'")';
+        if(isUserWallpaper(full)){
+            node.style.backgroundSize='contain';
+            node.style.backgroundColor='#111111';
+        }else{
+            node.style.backgroundSize='cover';
+            node.style.backgroundColor='transparent';
+        }
+    }
+    if(preview){
+        rememberThumb(full, preview);
+        apply(preview);
+        var img=new Image();
+        img.onload=function(){
+            apply(full);
+        };
+        img.src=full;
+        return;
+    }
+    apply(full);
 }
 function isWallpaperPath(url){
     var path=String(url||'').split('?')[0];
@@ -148,14 +200,7 @@ function cssBackgroundUrl(value){
     if(!ready || !bg){
         return;
     }
-    var img=new Image();
-    img.onload=function(){
-        paintWallpaper(bg, ready.url);
-    };
-    img.onerror=function(){
-        try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
-    };
-    img.src=ready.url;
+    paintWallpaper(bg, ready.url, ready.thumb);
 })();
 function consolejs(uiData){
     var setState=null;//当前设置项
@@ -163,9 +208,9 @@ function consolejs(uiData){
     //获取壁纸--------------------------
     // var oBgWrap=document.getElementById('bg-wrap');
     //打开页面时的壁纸。未选分类时从全部壁纸里轮换，已选分类时只在该分类里轮换。
-    function applyBg(url){
+    function applyBg(url, thumb){
         uiData['bg_url']=url;
-        paintWallpaper($('#bg-wrap')[0], url);
+        paintWallpaper($('#bg-wrap')[0], url, thumb);
         setCookie('loadingbg',url,365);
     }
     var savedBgCategory=readStoredCategory();
@@ -177,22 +222,9 @@ function consolejs(uiData){
         window.__jfBgBooted=true;
         var readyWallpaper=readReadyWallpaper();
         if(savedBgCategory && readyWallpaper){
-            var readyImage=new Image();
-            readyImage.onload=function(){
-                if(readStoredCategory()!==savedBgCategory){
-                    return;
-                }
-                applyBg(readyWallpaper.url);
-                markBgUsed(readyWallpaper.url);
-                preloadNextBg(savedBgCategory, readyWallpaper.url);
-            };
-            readyImage.onerror=function(){
-                try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
-                rotateBg(savedBgCategory, function(url){
-                    preloadNextBg(savedBgCategory, url);
-                });
-            };
-            readyImage.src=readyWallpaper.url;
+            applyBg(readyWallpaper.url, readyWallpaper.thumb);
+            markBgUsed(readyWallpaper.url);
+            preloadNextBg(savedBgCategory, readyWallpaper.url);
         }
         else if(savedBgCategory){
             var cookieBg=(typeof getCookie==='function') ? getCookie('loadingbg') : '';
@@ -207,22 +239,9 @@ function consolejs(uiData){
             applyBg(uiData['bg_url']);
         }
         else if(readyWallpaper){
-            var openImage=new Image();
-            openImage.onload=function(){
-                if(readStoredCategory()){
-                    return;
-                }
-                applyBg(readyWallpaper.url);
-                markBgUsed(readyWallpaper.url);
-                preloadNextBg('', readyWallpaper.url);
-            };
-            openImage.onerror=function(){
-                try{ localStorage.removeItem(BG_READY_KEY); }catch(e){}
-                rotateBg('', function(url){
-                    preloadNextBg('', url);
-                });
-            };
-            openImage.src=readyWallpaper.url;
+            applyBg(readyWallpaper.url, readyWallpaper.thumb);
+            markBgUsed(readyWallpaper.url);
+            preloadNextBg('', readyWallpaper.url);
         }
         else{
             var savedBg=(typeof getCookie==='function') ? getCookie('loadingbg') : '';
@@ -876,7 +895,7 @@ $('#console-title-box').click(function(){
                 }
                 if(data.success && data.bg_url && (!category || (data.category===category && wallpaperInCategory(data.bg_url, category)))){
                     nowBgpic=data.bg_url;
-                    applyBg(data.bg_url);
+                    applyBg(data.bg_url, data.thumb);
                     if(done){
                         done(data.bg_url);
                     }
@@ -920,19 +939,23 @@ $('#console-title-box').click(function(){
                 if(category && (data.category!==category || !wallpaperInCategory(data.bg_url, category))){
                     return;
                 }
-                var img=new Image();
-                img.onload=function(){
-                    if(readStoredCategory()!==category || (category==='custom' && window.__jfShare)){
-                        return;
-                    }
-                    try{
-                        localStorage.setItem(BG_READY_KEY, JSON.stringify({
-                            category: category,
-                            url: data.bg_url
-                        }));
-                    }catch(e){}
-                };
-                img.src=data.bg_url;
+                if(readStoredCategory()!==category || (category==='custom' && window.__jfShare)){
+                    return;
+                }
+                var preview=data.thumb || thumbForWallpaper(data.bg_url);
+                try{
+                    localStorage.setItem(BG_READY_KEY, JSON.stringify({
+                        category: category,
+                        url: data.bg_url,
+                        thumb: preview || ''
+                    }));
+                }catch(e){}
+                if(preview){
+                    var thumbImg=new Image();
+                    thumbImg.src=preview;
+                }
+                var fullImg=new Image();
+                fullImg.src=data.bg_url;
             }
         };
         req.send(fd);
@@ -1237,6 +1260,9 @@ $('#console-title-box').click(function(){
                             var preview=typeof item==='string' ? item : (item.thumb||item.url||'');
                             var full=typeof item==='string' ? item.replace('/400/','/') : (item.url||preview);
                             oNewBgDiv.dataset.full=full;
+                            if(preview && preview!==full){
+                                oNewBgDiv.dataset.thumb=preview;
+                            }
                             oNewBgDiv.innerHTML="<a download href='"+full+"' class='set-pic-btn btn' target='_blank' title='下载壁纸'></a>";
                             oNewBgDiv.style.backgroundImage='url("'+preview+'")';
                             if(previewCategory==='custom'){
@@ -1259,7 +1285,7 @@ $('#console-title-box').click(function(){
         $(".bg-pic-box").click(function(){
             nowBgpic=this.dataset.full || cssBackgroundUrl(this.style.backgroundImage);
             // alert(nowBgpic);
-            paintWallpaper($('#bg-wrap')[0], nowBgpic);
+            paintWallpaper($('#bg-wrap')[0], nowBgpic, this.dataset.thumb||'');
             // oBgPicBox.src='./home/bg/show?type=temp&picurl='+nowBgpic;
             $('#console-title-box')[0].style.display='none';
             $('#save-box')[0].style.display='flex';
