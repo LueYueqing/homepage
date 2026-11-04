@@ -22,6 +22,7 @@ import {
   findUserBySession,
   readSessionToken,
   saveUserSettings,
+  sessionCookieOptions,
 } from '../../../lib/users';
 import { handleAdmin } from '../../../lib/admin-http';
 import { createVipOrder, FREE_UPLOAD_LIMIT, VIP_PRICE_YUAN } from '../../../lib/vip';
@@ -455,7 +456,10 @@ async function handle(request, context) {
     const requested = readCategoryList(fields.categories);
     const categories = requested.length ? requested : (user?.nav_categories || []);
     data.siteData = await listNavSites(0, categories);
-    return NextResponse.json(data);
+    const response = NextResponse.json(data);
+    const token = readSessionToken(request);
+    if (user && token) response.cookies.set('wa_session', token, sessionCookieOptions());
+    return response;
   }
   if (key === '/home/user/logout') {
     await destroySession(readSessionToken(request)).catch(() => {});
