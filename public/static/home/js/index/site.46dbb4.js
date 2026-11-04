@@ -718,6 +718,7 @@ function site(){
 
 	var siteDialogUrl='';
 	var siteDialogName='';
+	var autoFilledName='';
 	var lastFetchedUrl='';
 	var siteFetchSeq=0;
 
@@ -735,6 +736,7 @@ function site(){
 	function rememberSiteDialog(url, name){
 		siteDialogUrl=url||'';
 		siteDialogName=name||'';
+		autoFilledName='';
 		lastFetchedUrl=siteDialogUrl;
 		siteFetchSeq++;
 	}
@@ -748,8 +750,10 @@ function site(){
 			}
 			return;
 		}
-		if(data.title && (!oNssNameInput.value || (urlValue!==siteDialogUrl && oNssNameInput.value===siteDialogName))){
+		var currentName=oNssNameInput.value;
+		if(data.title && (!currentName || currentName===autoFilledName || (urlValue!==siteDialogUrl && currentName===siteDialogName))){
 			oNssNameInput.value=data.title;
+			autoFilledName=data.title;
 		}
 		if(data.icon && (Number(oNssImg.icontype)!==4 || urlValue!==siteDialogUrl)){
 			oNssImg.src=data.icon;
@@ -877,6 +881,7 @@ function site(){
             var split2=urlValueSplit[2].split('.');
 			var valueStr=split2[split2.length-2].toLowerCase();
             oNssNameInput.value=valueStr.substr(0,1).toUpperCase()+valueStr.substr(1,valueStr.length);
+			autoFilledName=oNssNameInput.value;
 		}
 	}
 
