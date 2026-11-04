@@ -1,3 +1,5 @@
+import { BUILD_TIME } from '../lib/build-id.mjs';
+
 const LINKS = [
   ['/', '哇塔首页'],
   ['/about', '关于我们'],
@@ -11,6 +13,12 @@ const LINKS = [
 
 export default function SiteFooter() {
   return (
+    <>
+    {BUILD_TIME ? (
+      <p id="build-time" style={{ margin: '24px 0 0', textAlign: 'center', fontSize: '12px', lineHeight: 1.4, color: '#808080' }}>
+        构建时间 {BUILD_TIME}
+      </p>
+    ) : null}
     <div id="bottomDiv" style={{ margin: 0, padding: 0 }}>
       <div id="botWidthDiv">
         <div id="botLink">
@@ -30,5 +38,6 @@ export default function SiteFooter() {
         </div>
       </div>
     </div>
+    </>
   );
 }
