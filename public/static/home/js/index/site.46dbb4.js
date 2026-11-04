@@ -149,9 +149,9 @@ function site(){
                 var name=data.name||'微信用户';
                 window.__jfShare={name:name};
                 var chosen=typeof readStoredCategory==='function' ? readStoredCategory() : '';
-                if(token || !chosen || chosen==='custom'){
+                if(token || !chosen || chosen==='custom' || chosen==='share'){
                     if(typeof writeStoredCategory==='function'){
-                        writeStoredCategory('custom');
+                        writeStoredCategory('share');
                     }
                     try{ localStorage.removeItem('jf_bg_ready'); }catch(e){}
                 }

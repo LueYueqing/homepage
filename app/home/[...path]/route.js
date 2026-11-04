@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { getPool } from '../../../lib/db';
 import {
   CUSTOM_BG_CATEGORY,
+  SHARE_BG_CATEGORY,
   addUserBackground,
   backfillUserThumbnails,
   countUserBackgrounds,
@@ -280,20 +281,29 @@ async function listCategories(user, share) {
       total: Number(row.total),
     }))
     .sort((a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category));
-  const ownerId = user?.id || share?.userId || 0;
   categories.unshift({
     category: CUSTOM_BG_CATEGORY,
     category_note: '自选',
-    total: ownerId ? await countUserBackgrounds(ownerId) : 0,
+    total: user ? await countUserBackgrounds(user.id) : 0,
   });
+  if (share?.userId) {
+    categories.splice(1, 0, {
+      category: SHARE_BG_CATEGORY,
+      category_note: '分享',
+      total: await countUserBackgrounds(share.userId),
+    });
+  }
   return categories;
 }
 
 async function listThumbs(category, offset, user, share) {
+  if (category === SHARE_BG_CATEGORY) {
+    if (!share?.userId) return [];
+    return listUserBackgroundThumbs(share.userId, offset);
+  }
   if (category === CUSTOM_BG_CATEGORY) {
-    const ownerId = user?.id || share?.userId;
-    if (!ownerId) return [];
-    return listUserBackgroundThumbs(ownerId, offset);
+    if (!user) return [];
+    return listUserBackgroundThumbs(user.id, offset);
   }
   const pool = getPool();
   const [rows] = await pool.query(
@@ -471,9 +481,9 @@ function stoppedShareResponse() {
 }
 
 async function sharedRotation(request, user, category, options) {
+  if (category !== SHARE_BG_CATEGORY) return null;
   const share = await wallpaperShare(request, user);
   if (!share) return null;
-  if (category && category !== CUSTOM_BG_CATEGORY) return null;
   if (share.stopped) return { stopped: true };
   const pick = await stepSharedWallpaper(share.userId, {
     exclude: options.exclude || '',
@@ -669,14 +679,17 @@ async function handle(request, context) {
     const category = safeCategory(fields.category);
     const exclude = safeImagePath(fields.exclude);
     const shared = await sharedRotation(request, user, category, { exclude, advance: false });
-    if (shared?.stopped) return stoppedShareResponse();
+    if (category === SHARE_BG_CATEGORY) {
+      if (shared?.stopped) return stoppedShareResponse();
+      if (!shared?.pick) return NextResponse.json({ success: 0 });
+    }
     if (shared) {
       if (!shared.pick) return NextResponse.json({ success: 0 });
       return NextResponse.json({
         success: 1,
         bg_url: shared.pick.url,
         thumb: shared.pick.thumb || '',
-        category: CUSTOM_BG_CATEGORY,
+        category: SHARE_BG_CATEGORY,
         title: '分享',
       });
     }
@@ -701,14 +714,17 @@ async function handle(request, context) {
     const fields = await readFields(request);
     const category = safeCategory(fields.category);
     const shared = await sharedRotation(request, user, category, { advance: true });
-    if (shared?.stopped) return stoppedShareResponse();
+    if (category === SHARE_BG_CATEGORY) {
+      if (shared?.stopped) return stoppedShareResponse();
+      if (!shared?.pick) return NextResponse.json({ success: 0, error: '没有正在使用的分享' });
+    }
     if (shared) {
       if (!shared.pick) return NextResponse.json({ success: 0, error: '分享的主页还没有壁纸' });
       const response = NextResponse.json({
         success: 1,
         bg_url: shared.pick.url,
         thumb: shared.pick.thumb || '',
-        category: CUSTOM_BG_CATEGORY,
+        category: SHARE_BG_CATEGORY,
         title: '分享',
       });
       response.cookies.set('wa_share_idx', String(shared.pick.index), shareIndexCookieOptions());

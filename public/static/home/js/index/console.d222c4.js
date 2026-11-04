@@ -10,7 +10,7 @@ function isLibraryWallpaper(url){
     return /\/wallpapers\/[a-z0-9-]+\/[a-f0-9]{16}\.jpg$/i.test(String(url||'').split('?')[0]);
 }
 function wallpaperInCategory(url, category){
-    if(category==='custom') return isUserWallpaper(url);
+    if(category==='custom' || category==='share') return isUserWallpaper(url);
     var path=String(url||'').split('?')[0];
     if(!isBgCategory(category)) return false;
     if(path.indexOf('/uploads/bg/'+category+'/')===0) return true;
@@ -971,9 +971,11 @@ $('#console-title-box').click(function(){
                 currentNote=bgCategories[n].category_note;
             }
         }
-        hint.innerHTML=bgCategory==='custom'
-            ? (window.__jfShare ? '已选中「自选」，首页会轮换分享给你的壁纸' : '已选中「自选」，首页会轮换你上传的壁纸')
-            : (currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张');
+        hint.innerHTML=bgCategory==='share'
+            ? '已选中「分享」，首页会轮换别人分享的壁纸'
+            : (bgCategory==='custom'
+                ? '已选中「自选」，首页会轮换你上传的壁纸'
+                : (currentNote ? '已选中「'+currentNote+'」，下次打开页面会换一张' : '未选分类时，每次打开都会从全部壁纸里换一张'));
         for(var i=0;i<bgCategories.length;i++){
             var item=bgCategories[i];
             var chip=document.createElement('div');
@@ -999,18 +1001,65 @@ $('#console-title-box').click(function(){
         oBgPicWrap.appendChild(entry);
     }
 
+    function leaveShare(){
+        var req=new XMLHttpRequest();
+        req.open('POST','/home/share/leave',true);
+        req.onreadystatechange=function(){
+            if(req.readyState!==4){
+                return;
+            }
+            window.__jfShare=null;
+            try{ localStorage.removeItem('jf_bg_category'); }catch(e){}
+            try{ localStorage.removeItem('jf_bg_ready'); }catch(e){}
+            try{ localStorage.removeItem('jf_bg_thumb'); }catch(e){}
+            document.cookie='jf_bg_category=;path=/;max-age=0';
+            document.cookie='wa_shared=;path=/;max-age=0';
+            bgCategories=bgCategories.filter(function(item){ return item.category!=='share'; });
+            bgCategory='';
+            renderBgCategories();
+            resetBgList();
+            rotateBg('', function(url){
+                preloadNextBg('', url);
+            }, true);
+            showmsg('已去掉分享');
+        };
+        req.send();
+    }
+
+    function appendShareLeave(){
+        if(bgCategory!=='share' || !window.__jfShare){
+            return;
+        }
+        var entry=document.createElement('button');
+        entry.type='button';
+        entry.className='bg-upload-entry';
+        entry.textContent='去掉分享';
+        entry.onclick=function(event){
+            event.preventDefault();
+            event.stopPropagation();
+            leaveShare();
+        };
+        oBgPicWrap.appendChild(entry);
+    }
+
     function chooseBgCategory(category){
         if(!isBgCategory(category)){
             return;
         }
-        if(category==='custom' && !(window.__jfUser && Number(window.__jfUser.user_type)===1) && !window.__jfShare){
+        if(category==='custom' && !(window.__jfUser && Number(window.__jfUser.user_type)===1)){
             showLoginBtn();
+            return;
+        }
+        if(category==='share' && !window.__jfShare){
+            showmsg('没有正在使用的分享');
             return;
         }
         var changed=category!==bgCategory;
         bgCategory=category;
         writeStoredCategory(category);
-        saveUserPref({bg_category: category});
+        if(category!=='share'){
+            saveUserPref({bg_category: category});
+        }
         renderBgCategories();
         resetBgList();
         if(changed){
@@ -1030,6 +1079,7 @@ $('#console-title-box').click(function(){
             return;
         }
         appendCustomUpload();
+        appendShareLeave();
         ajaxBg();
     }
 
@@ -1240,10 +1290,12 @@ $('#console-title-box').click(function(){
                         var ajaxBgList=JSON.parse(req.response);
                         if(!ajaxBgList.length){
                             bgNoMore=true;
-                            if(previewCategory==='custom' && bgOffset===0){
+                            if(previewCategory==='share' && bgOffset===0){
+                                oBgLoadText.innerHTML='分享的壁纸还没有图片';
+                            }else if(previewCategory==='custom' && bgOffset===0){
                                 oBgLoadText.innerHTML=(window.__jfUser && Number(window.__jfUser.user_type)===1)
                                     ? '还没有壁纸'
-                                    : (window.__jfShare ? '分享的主页还没有壁纸' : '登录后才能使用自选壁纸');
+                                    : '登录后才能使用自选壁纸';
                             }else{
                                 oBgLoadText.innerHTML='';
                             }
@@ -1265,7 +1317,7 @@ $('#console-title-box').click(function(){
                             }
                             oNewBgDiv.innerHTML="<a download href='"+full+"' class='set-pic-btn btn' target='_blank' title='下载壁纸'></a>";
                             oNewBgDiv.style.backgroundImage='url("'+preview+'")';
-                            if(previewCategory==='custom'){
+                            if(previewCategory==='custom' || previewCategory==='share'){
                                 oNewBgDiv.style.backgroundSize='contain';
                             }
                             oNewBgDiv.style.height=((oBgPicWrap.clientWidth||320)/16*9)+'px';
