@@ -228,7 +228,6 @@ function site(){
                     openHome(!!iconsOnly);
                     if(userData['user_type']==0){//未登录，type为0
                         $('#user-box')[0].style.cursor='pointer';
-                        $("#beian-wrap").fadeIn(300);//显示备案                        
                         return false;
                     }
                     else{
@@ -397,7 +396,6 @@ function site(){
 
         $('#console-wrap').fadeOut(300);
         $("#fixedBtnBox").fadeOut(300);
-        $("#beian-wrap").fadeOut(300);
 
         $("#site-text-span").fadeIn(300);
         $(".site-delete").fadeIn(300);

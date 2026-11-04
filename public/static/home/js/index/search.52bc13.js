@@ -221,7 +221,6 @@ function searchjs(engineData){
         $('#site-wrap').fadeOut(300);
         $('#console-wrap').fadeOut(300);
         $("#fixedBtnBox").fadeOut(300);
-        $("#beian-wrap").fadeOut(300);
 
         $("#search-wrap").css({'opacity':'1',"margin-bottom":"340px"});
         $("#search-menu-box").fadeIn(200);

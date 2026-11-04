@@ -626,7 +626,6 @@ $('#console-title-box').click(function(){
     function showConsole(showKind,animate){
         if(animate){//是否需要弹出动画
             $("#fixedBtnBox").fadeOut(300);
-            $("#beian-wrap").fadeOut(300);
             $('#console-wrap').fadeIn(300);  
         }
         else{
