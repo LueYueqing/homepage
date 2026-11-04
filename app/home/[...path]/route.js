@@ -501,6 +501,7 @@ async function handle(request, context) {
     await destroySession(readSessionToken(request)).catch(() => {});
     const response = NextResponse.json({ success: 1 });
     response.cookies.set('wa_session', '', { path: '/', maxAge: 0 });
+    clearShareCookies(response);
     return response;
   }
   if (key === '/home/user/prefs') {

@@ -281,7 +281,13 @@ function site(){
                 if(JSON.parse(req.response)['error']){					    	
                     return false;						    		
                 }
-                else if(JSON.parse(req.response)['success']){						    			    		
+                else if(JSON.parse(req.response)['success']){
+                    try{ localStorage.removeItem('jf_bg_category'); }catch(e){}
+                    try{ localStorage.removeItem('jf_bg_ready'); }catch(e){}
+                    document.cookie='jf_bg_category=;path=/;max-age=0';
+                    document.cookie='loadingbg=;path=/;max-age=0';
+                    document.cookie='loadingbg=;max-age=0';
+                    document.cookie='wa_shared=;path=/;max-age=0';
                 }
             }
         }
